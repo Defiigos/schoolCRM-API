@@ -24,7 +24,7 @@ public class PaymentStatus {
     @Enumerated(EnumType.STRING)
     private PaymentStatusType status;
 
-    @OneToMany(mappedBy = "paymentStatus", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "status", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> paymentList = new ArrayList<>();
 
     public PaymentStatus(PaymentStatusType status) {
@@ -33,11 +33,11 @@ public class PaymentStatus {
 
     public void addPayment(Payment payment){
         this.paymentList.add(payment);
-        payment.setPaymentStatus(this);
+        payment.setStatus(this);
     }
 
     public void removePayment(Payment payment){
         this.paymentList.remove(payment);
-        payment.setPaymentStatus(null);
+        payment.setStatus(null);
     }
 }

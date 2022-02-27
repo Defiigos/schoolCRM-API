@@ -5,8 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "students")
@@ -30,10 +29,13 @@ public class Student {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private StudentStatus studentStatus;
+    private StudentStatus status;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LessonGroup> lessonGroupList = new ArrayList<>();
+    private List<Payment> paymentList = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "students")
+    private Set<LessonGroup> lessonGroups = new HashSet<>();
 
     public Student(String name, String phone,
                    String parentName, String parentPhone,
@@ -45,13 +47,34 @@ public class Student {
         this.description = description;
     }
 
-    public void addLessonGroup(LessonGroup lessonGroup){
-        this.lessonGroupList.add(lessonGroup);
-        lessonGroup.setStudent(this);
+    public void addPayment(Payment payment){
+        this.paymentList.add(payment);
+        payment.setStudent(this);
     }
 
-    public void removeLessonGroup(LessonGroup lessonGroup){
-        this.lessonGroupList.remove(lessonGroup);
-        lessonGroup.setStudent(null);
+    public void removePayment(Payment payment){
+        this.paymentList.remove(payment);
+        payment.setStudent(null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Student student = (Student) o;
+        return Objects.equals(id, student.id)
+                && Objects.equals(name, student.name)
+                && Objects.equals(phone, student.phone)
+                && parentName.equals(student.parentName)
+                && parentPhone.equals(student.parentPhone)
+                && Objects.equals(description, student.description)
+                && Objects.equals(status, student.status)
+                && Objects.equals(paymentList, student.paymentList)
+                && Objects.equals(lessonGroups, student.lessonGroups);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
     }
 }

@@ -20,19 +20,20 @@ public class Payment {
     private Long id;
 
     @Column(nullable = false)
-    private LocalDate paymentDate;
+    private LocalDate payDate;
 
     @Column(nullable = false)
-    private LocalTime paymentTime;
+    private LocalTime payTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private PaymentAmount amount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private PaymentStatus paymentStatus;
+    private PaymentStatus status;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
-    @JoinColumn(name = "id")
-    private LessonGroup lessonGroup;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Lesson lesson;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Student student;
 }
