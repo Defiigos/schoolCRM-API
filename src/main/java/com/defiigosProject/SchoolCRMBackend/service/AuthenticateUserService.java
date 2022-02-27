@@ -4,6 +4,7 @@ import com.defiigosProject.SchoolCRMBackend.dto.request.CreateUserRequest;
 import com.defiigosProject.SchoolCRMBackend.dto.response.JwtResponse;
 import com.defiigosProject.SchoolCRMBackend.dto.request.LoginRequest;
 import com.defiigosProject.SchoolCRMBackend.dto.response.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
 import com.defiigosProject.SchoolCRMBackend.model.Role;
 import com.defiigosProject.SchoolCRMBackend.model.User;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.RoleType;
@@ -66,25 +67,26 @@ public class AuthenticateUserService {
                 roles));
     }
 
-    public ResponseEntity<MessageResponse> createUser(CreateUserRequest createUserRequest){
+    public ResponseEntity<MessageResponse> createUser(CreateUserRequest createUserRequest) throws BadRequestException{
         String createUserEmail = createUserRequest.getEmail();
+        String createUserPassword = createUserRequest.getPassword();
 
         if (createUserEmail == null || createUserEmail.isEmpty()){
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Email required"));
+            throw new BadRequestException("Error: Email('email') required");
+        }
+
+        if (createUserPassword == null || createUserPassword.isEmpty()){
+            throw new BadRequestException("Error: Password('password') required");
         }
 
         if (userRepo.existsByEmail(createUserEmail)){
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: This email is already register"));
+            throw new BadRequestException("Error: This email is already register");
         }
 
         User user = new User(
-                createUserEmail,
                 createUserRequest.getUsername(),
-                passwordEncoder.encode(createUserRequest.getPassword())
+                createUserEmail,
+                passwordEncoder.encode(createUserPassword)
         );
 
         Set<String> requestRoles = createUserRequest.getRoles();
@@ -94,24 +96,31 @@ public class AuthenticateUserService {
             Role userRole = roleRepo.findByName(RoleType.ROLE_USER).orElseThrow(() -> new RuntimeException("Error, Role USER is not found"));
             roles.add(userRole);
         } else {
-            requestRoles.forEach(role -> {
-                switch (role){
-                    case "ADMIN":
+            for (String role: requestRoles)
+            {
+                switch (role) {
+                    case "ROLE_ADMIN":
                         Role adminRole = roleRepo.findByName(RoleType.ROLE_ADMIN)
                                 .orElseThrow(() -> new RuntimeException("Error, Role ADMIN is not found"));
                         roles.add(adminRole);
                         break;
-                    default:
+
+                    case "ROLE_USER":
                         Role userRole = roleRepo.findByName(RoleType.ROLE_USER)
                                 .orElseThrow(() -> new RuntimeException("Error, Role USER is not found"));
                         roles.add(userRole);
+                        break;
+
+                    default:
+                        throw new BadRequestException("Error, Role " + role + " is not found");
                 }
-            });
+            }
         }
 
-        user.setRoles(roles);
+        for (Role role: roles) {
+            user.addRole(role);
+        }
         userRepo.save(user);
-
         return ResponseEntity.ok(new MessageResponse("User successfully created"));
     }
 }

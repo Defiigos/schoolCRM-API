@@ -17,7 +17,7 @@ public class LocationController {
         this.locationService = locationService;
     }
 
-    //    TODO авторизация @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    //    TODO авторизация ? только так ? -> @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<MessageResponse> createLocation(@RequestBody CreateLocationRequest locationRequest){
         return locationService.createLocation(locationRequest);

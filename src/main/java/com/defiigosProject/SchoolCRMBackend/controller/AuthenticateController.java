@@ -1,5 +1,6 @@
 package com.defiigosProject.SchoolCRMBackend.controller;
 
+import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
 import com.defiigosProject.SchoolCRMBackend.service.AuthenticateUserService;
 import com.defiigosProject.SchoolCRMBackend.dto.request.CreateUserRequest;
 import com.defiigosProject.SchoolCRMBackend.dto.request.LoginRequest;
@@ -26,8 +27,8 @@ public class AuthenticateController {
     }
 
     @PostMapping("/createUser")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MessageResponse> createUser(@RequestBody CreateUserRequest createUserRequest){
+//   TODO авторизация @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> createUser(@RequestBody CreateUserRequest createUserRequest) throws BadRequestException {
        return authenticationUserService.createUser(createUserRequest);
     }
 }

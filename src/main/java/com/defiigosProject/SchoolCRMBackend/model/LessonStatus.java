@@ -22,13 +22,13 @@ public class LessonStatus {
 
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
-    private LessonStatusType type;
+    private LessonStatusType status;
 
     @OneToMany(mappedBy = "lessonStatus", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Lesson> lessonList = new ArrayList<>();
 
-    public LessonStatus(LessonStatusType type) {
-        this.type = type;
+    public LessonStatus(LessonStatusType status) {
+        this.status = status;
     }
 
     public void addLesson(Lesson lesson){

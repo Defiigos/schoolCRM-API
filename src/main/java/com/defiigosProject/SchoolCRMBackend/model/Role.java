@@ -5,13 +5,15 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+
 
 @Entity
 @Table(name = "roles")
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 public class Role {
 
@@ -22,6 +24,9 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private RoleType name;
+
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users = new HashSet<>();
 
     public Role(RoleType name) {
         this.name = name;
@@ -37,7 +42,7 @@ public class Role {
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return 31;
     }
 }
 
