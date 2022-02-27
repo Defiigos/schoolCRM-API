@@ -1,9 +1,9 @@
 package com.defiigosProject.SchoolCRMBackend.controller;
 
-import com.defiigosProject.SchoolCRMBackend.service.RequestStudentService;
-import com.defiigosProject.SchoolCRMBackend.dto.request.CreateRequestStudentRequest;
-import com.defiigosProject.SchoolCRMBackend.dto.request.UpdateRequestStudentRequest;
+import com.defiigosProject.SchoolCRMBackend.dto.request.RequestStudentRequest;
 import com.defiigosProject.SchoolCRMBackend.dto.response.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
+import com.defiigosProject.SchoolCRMBackend.service.RequestStudentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +18,12 @@ public class RequestStudentController {
         this.requestStudentService = requestStudentService;
     }
 
+    @PostMapping("/create")
+    public ResponseEntity<MessageResponse> createRequestStudent(
+            @RequestBody RequestStudentRequest requestStudentRequest) throws BadRequestException {
+        return requestStudentService.createRequestStudent(requestStudentRequest);
+    }
+
 //    TODO авторизация @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping()
     public ResponseEntity<?> getRequestStudent(
@@ -30,18 +36,19 @@ public class RequestStudentController {
         return requestStudentService.getRequestStudent(id, name, phone, status, locationId);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<MessageResponse> createRequestStudent(
-            @RequestBody CreateRequestStudentRequest createRequestStudentRequest){
-        return requestStudentService.createRequestStudent(createRequestStudentRequest);
-    }
-
 //    TODO авторизация @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<MessageResponse> updateRequestStudent(
             @PathVariable(value = "id") Long id,
-            @RequestBody UpdateRequestStudentRequest updateRequestStudentRequest
-            ){
-        return requestStudentService.updateRequestStudent(id, updateRequestStudentRequest);
+            @RequestBody RequestStudentRequest requestStudentRequest
+            ) throws BadRequestException {
+        return requestStudentService.updateRequestStudent(id, requestStudentRequest);
+    }
+
+//    TODO авторизация @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<MessageResponse> deleteRequestStudent(
+            @PathVariable(value = "id") Long id) throws BadRequestException {
+        return requestStudentService.deleteRequestStudent(id);
     }
 }

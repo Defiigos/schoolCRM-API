@@ -23,6 +23,9 @@ public class Location {
     private String address;
     private String name;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private LocationStatus locationStatus;
+
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Lesson> lessonList = new ArrayList<>();
 

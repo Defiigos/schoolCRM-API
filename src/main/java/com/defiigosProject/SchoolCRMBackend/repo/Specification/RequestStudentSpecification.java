@@ -12,11 +12,11 @@ public class RequestStudentSpecification {
     }
 
     public static Specification<RequestStudent> withName(String name){
-        return (root, query, cb) -> name == null ? null : cb.equal(root.get("name"), name);
+        return (root, query, cb) -> (name == null || name.isEmpty()) ? null : cb.equal(root.get("name"), name);
     }
 
     public static Specification<RequestStudent> withPhone(String phone){
-        return (root, query, cb) -> phone == null ? null : cb.equal(root.get("phone"), phone);
+        return (root, query, cb) -> (phone == null || phone.isEmpty()) ? null : cb.equal(root.get("phone"), phone);
     }
 
     public static Specification<RequestStudent> withStatus(String status){
@@ -31,6 +31,6 @@ public class RequestStudentSpecification {
     }
 
     public static Specification<RequestStudent> withLocationId(Long locationId){
-        return (root, query, cb) -> locationId == null ? null : cb.equal(root.get("location_id"), locationId);
+        return (root, query, cb) -> locationId == null ? null : cb.equal(root.join("location", JoinType.LEFT).get("id"), locationId);
     }
 }
