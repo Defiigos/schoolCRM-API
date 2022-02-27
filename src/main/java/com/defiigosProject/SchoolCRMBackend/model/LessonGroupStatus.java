@@ -1,5 +1,7 @@
 package com.defiigosProject.SchoolCRMBackend.model;
 
+import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonGroupStatusType;
+import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonStatusType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,33 +11,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "groups")
+@Table(name = "location_statuses")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Group {
+public class LessonGroupStatus {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String name;
+    @Column(nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private LessonGroupStatusType status;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "status", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LessonGroup> lessonGroupList = new ArrayList<>();
 
-    public Group(String name) {
-        this.name = name;
+    public LessonGroupStatus(LessonGroupStatusType status) {
+        this.status = status;
     }
 
     public void addLessonGroup(LessonGroup lessonGroup){
         this.lessonGroupList.add(lessonGroup);
-        lessonGroup.setGroup(this);
+        lessonGroup.setStatus(this);
     }
 
     public void removeLessonGroup(LessonGroup lessonGroup){
         this.lessonGroupList.remove(lessonGroup);
-        lessonGroup.setGroup(null);
+        lessonGroup.setStatus(null);
     }
 }

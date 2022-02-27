@@ -24,7 +24,7 @@ public class LessonDuration {
     private LocalTime time;
     private String name;
 
-    @OneToMany(mappedBy = "lessonDuration", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "duration", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Lesson> lessonList = new ArrayList<>();
 
     public LessonDuration(LocalTime time, String name) {
@@ -34,11 +34,11 @@ public class LessonDuration {
 
     public void addLesson(Lesson lesson){
         this.lessonList.add(lesson);
-        lesson.setLessonDuration(this);
+        lesson.setDuration(this);
     }
 
     public void removeLesson(Lesson lesson){
         this.lessonList.remove(lesson);
-        lesson.setLessonDuration(null);
+        lesson.setDuration(null);
     }
 }

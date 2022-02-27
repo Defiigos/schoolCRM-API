@@ -24,7 +24,7 @@ public class LessonStatus {
     @Enumerated(EnumType.STRING)
     private LessonStatusType status;
 
-    @OneToMany(mappedBy = "lessonStatus", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "status", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Lesson> lessonList = new ArrayList<>();
 
     public LessonStatus(LessonStatusType status) {
@@ -33,11 +33,11 @@ public class LessonStatus {
 
     public void addLesson(Lesson lesson){
         this.lessonList.add(lesson);
-        lesson.setLessonStatus(this);
+        lesson.setStatus(this);
     }
 
     public void removeLesson(Lesson lesson){
         this.lessonList.remove(lesson);
-        lesson.setLessonStatus(null);
+        lesson.setStatus(null);
     }
 }

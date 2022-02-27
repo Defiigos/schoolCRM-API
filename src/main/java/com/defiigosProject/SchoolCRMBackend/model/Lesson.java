@@ -31,29 +31,32 @@ public class Lesson {
     private User teacher;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private LessonStatus lessonStatus;
+    private LessonStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private LessonDuration lessonDuration;
+    private LessonDuration duration;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private LessonGroup lessonGroup;
+
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LessonGroup> lessonGroupList = new ArrayList<>();
+    private List<Payment> paymentList = new ArrayList<>();
 
     public Lesson(LocalDate date, LocalTime time) {
         this.date = date;
         this.time = time;
     }
 
-    public void addLessonGroup(LessonGroup lessonGroup){
-        this.lessonGroupList.add(lessonGroup);
-        lessonGroup.setLesson(this);
+    public void addPayment(Payment payment){
+        this.paymentList.add(payment);
+        payment.setLesson(this);
     }
 
-    public void removeLessonGroup(LessonGroup lessonGroup){
-        this.lessonGroupList.remove(lessonGroup);
-        lessonGroup.setLesson(null);
+    public void removePayment(Payment payment){
+        this.paymentList.remove(payment);
+        payment.setLesson(null);
     }
 }
