@@ -63,7 +63,7 @@ public class LocationService {
                     location.getId(),
                     location.getAddress(),
                     location.getName(),
-                    location.getLocationStatus().getStatus()
+                    location.getStatus().getStatus()
             ));
         }
 
@@ -88,7 +88,7 @@ public class LocationService {
 
         if (locationRequest.getStatus() != null) {
             LocationStatus oldStatus = locationStatusRepo
-                    .findByStatus(findLocation.getLocationStatus().getStatus())
+                    .findByStatus(findLocation.getStatus().getStatus())
                     .orElseThrow(() -> new RuntimeException("Error, Old location status is not found"));
             oldStatus.removeLocation(findLocation);
 

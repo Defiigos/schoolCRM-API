@@ -24,7 +24,7 @@ public class RequestStudent {
     private String phone;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private RequestStudentStatus requestStudentStatus;
+    private RequestStudentStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Location location;

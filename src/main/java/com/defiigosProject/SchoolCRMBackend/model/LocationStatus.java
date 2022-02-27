@@ -24,7 +24,7 @@ public class LocationStatus {
     @Enumerated(EnumType.STRING)
     private LocationStatusType status;
 
-    @OneToMany(mappedBy = "locationStatus", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "status", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Location> locationList = new ArrayList<>();
 
     public LocationStatus(LocationStatusType status) {
@@ -33,11 +33,11 @@ public class LocationStatus {
 
     public void addLocation(Location location) {
         this.locationList.add(location);
-        location.setLocationStatus(this);
+        location.setStatus(this);
     }
 
     public void removeLocation(Location location) {
         this.locationList.remove(location);
-        location.setLocationStatus(null);
+        location.setStatus(null);
     }
 }

@@ -24,7 +24,7 @@ public class RequestStudentStatus {
     @Enumerated(EnumType.STRING)
     private RequestStudentStatusType status;
 
-    @OneToMany(mappedBy = "requestStudentStatus", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "status", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RequestStudent> requestStudentList = new ArrayList<>();
 
     public RequestStudentStatus(RequestStudentStatusType status) {
@@ -33,11 +33,11 @@ public class RequestStudentStatus {
 
     public void addRequestStudent(RequestStudent requestStudent){
         this.requestStudentList.add(requestStudent);
-        requestStudent.setRequestStudentStatus(this);
+        requestStudent.setStatus(this);
     }
 
     public void removeRequestStudent(RequestStudent requestStudent){
         this.requestStudentList.remove(requestStudent);
-        requestStudent.setRequestStudentStatus(null);
+        requestStudent.setStatus(null);
     }
 }

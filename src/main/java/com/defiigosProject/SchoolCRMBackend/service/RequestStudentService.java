@@ -93,12 +93,12 @@ public class RequestStudentService {
                                 requestStudent.getId(),
                                 requestStudent.getName(),
                                 requestStudent.getPhone(),
-                                requestStudent.getRequestStudentStatus().getStatus(),
+                                requestStudent.getStatus().getStatus(),
                                 new LocationResponse(
                                         requestStudent.getLocation().getId(),
                                         requestStudent.getLocation().getAddress(),
                                         requestStudent.getLocation().getName(),
-                                        requestStudent.getLocation().getLocationStatus().getStatus()
+                                        requestStudent.getLocation().getStatus().getStatus()
                                 )
                         )
                 );
@@ -108,7 +108,7 @@ public class RequestStudentService {
                                 requestStudent.getId(),
                                 requestStudent.getName(),
                                 requestStudent.getPhone(),
-                                requestStudent.getRequestStudentStatus().getStatus(),
+                                requestStudent.getStatus().getStatus(),
                                 null
                         )
                 );
@@ -142,7 +142,7 @@ public class RequestStudentService {
 
         if (requestStudentRequest.getStatus() != null) {
             RequestStudentStatus oldStatus = requestStudentStatusRepo
-                    .findByStatus(findRequestStudent.getRequestStudentStatus().getStatus())
+                    .findByStatus(findRequestStudent.getStatus().getStatus())
                     .orElseThrow(() -> new RuntimeException("Error, Old request student status is not found"));
             oldStatus.removeRequestStudent(findRequestStudent);
 
