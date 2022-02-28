@@ -74,7 +74,7 @@ public class LocationService {
     }
 
     public ResponseEntity<MessageResponse> updateLocation(Long id, LocationDto locationDto)
-            throws EntityNotFoundException, FieldNotNullException {
+            throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException {
 
         Location findLocation = locationRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("location with this id:" + id));
@@ -82,7 +82,13 @@ public class LocationService {
         if (locationDto.getAddress() != null){
             if (locationDto.getAddress().isEmpty())
                 throw new FieldNotNullException("address");
-            findLocation.setAddress(locationDto.getAddress());
+
+            if (!findLocation.getAddress().equals(locationDto.getAddress())) {
+                if (locationRepo.existsByAddress(locationDto.getAddress())) {
+                    throw new EntityAlreadyExistException("location");
+                }
+                findLocation.setAddress(locationDto.getAddress());
+            }
         }
 
         if (locationDto.getName() != null){

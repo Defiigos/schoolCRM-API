@@ -53,7 +53,7 @@ public class PaymentAmountController {
     public ResponseEntity<MessageResponse> updatePaymentAmount(
             @PathVariable(value = "id") Long id,
             @RequestBody PaymentAmountDto paymentAmountDto
-    ) throws EntityNotFoundException, FieldNotNullException {
+    ) throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException {
         return paymentAmountService.updatePaymentAmount(id, paymentAmountDto);
     }
 

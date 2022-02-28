@@ -50,7 +50,7 @@ public class LocationController {
     public ResponseEntity<MessageResponse> updateLocation(
             @PathVariable(value = "id") Long id,
             @RequestBody LocationDto locationDto
-    ) throws EntityNotFoundException, FieldNotNullException {
+    ) throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException {
         return locationService.updateLocation(id, locationDto);
     }
 
