@@ -44,7 +44,7 @@ public class StudentService {
 
         StudentStatus activeStatus = studentStatusRepo.findByStatus(StudentStatusType.STUDENT_ACTIVE)
                 .orElseThrow(() -> new RuntimeException("Error, Location status "
-                        + LocationStatusType.LOCATION_ACTIVE + " is not found"));
+                        + StudentStatusType.STUDENT_ACTIVE + " is not found"));
 
         Student newStudent = new Student(
                 studentDto.getName(),
