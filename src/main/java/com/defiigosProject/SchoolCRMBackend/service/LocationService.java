@@ -1,12 +1,10 @@
 package com.defiigosProject.SchoolCRMBackend.service;
 
-import com.defiigosProject.SchoolCRMBackend.dto.request.LocationRequest;
-import com.defiigosProject.SchoolCRMBackend.dto.response.LocationResponse;
-import com.defiigosProject.SchoolCRMBackend.dto.response.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.LocationDto;
+import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
 import com.defiigosProject.SchoolCRMBackend.model.Location;
 import com.defiigosProject.SchoolCRMBackend.model.LocationStatus;
-import com.defiigosProject.SchoolCRMBackend.model.RequestStudentStatus;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.LocationStatusType;
 import com.defiigosProject.SchoolCRMBackend.repo.LocationRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.LocationStatusRepo;
@@ -31,16 +29,16 @@ public class LocationService {
         this.locationStatusRepo = locationStatusRepo;
     }
 
-    public ResponseEntity<MessageResponse> createLocation(LocationRequest locationRequest) throws BadRequestException {
-        if (locationRequest.getAddress() == null || locationRequest.getAddress().isEmpty()){
+    public ResponseEntity<MessageResponse> createLocation(LocationDto locationDto) throws BadRequestException {
+        if (locationDto.getAddress() == null || locationDto.getAddress().isEmpty()){
             throw new BadRequestException("Error: Address('address') required");
         }
 
-        if (locationRepo.existsByAddress(locationRequest.getAddress())){
+        if (locationRepo.existsByAddress(locationDto.getAddress())){
             throw new BadRequestException("Error: Location with tis Address('address') already exist");
         }
 
-        Location newLocation = new Location(locationRequest.getAddress(), locationRequest.getName());
+        Location newLocation = new Location(locationDto.getAddress(), locationDto.getName());
         LocationStatus newStatus = locationStatusRepo.findByStatus(LocationStatusType.LOCATION_ACTIVE)
                 .orElseThrow(() -> new RuntimeException("Error, Location status (LOCATION_ACTIVE) is not found"));
         newStatus.addLocation(newLocation);
@@ -49,7 +47,7 @@ public class LocationService {
         return ResponseEntity.ok(new MessageResponse("Location successfully created"));
     }
 
-    public ResponseEntity<List<LocationResponse>> getLocation(Long id, String address, String name, String status){
+    public ResponseEntity<List<LocationDto>> getLocation(Long id, String address, String name, String status){
         List<Location> locationList = locationRepo.findAll(
                 where(withId(id))
                         .and(withAddress(address))
@@ -57,9 +55,9 @@ public class LocationService {
                         .and(withStatus(status))
         );
 
-        List<LocationResponse> locationResponseList = new ArrayList<>();
+        List<LocationDto> locationDtoList = new ArrayList<>();
         for (Location location: locationList) {
-            locationResponseList.add(new LocationResponse(
+            locationDtoList.add(new LocationDto(
                     location.getId(),
                     location.getAddress(),
                     location.getName(),
@@ -67,33 +65,33 @@ public class LocationService {
             ));
         }
 
-        return ResponseEntity.ok(locationResponseList);
+        return ResponseEntity.ok(locationDtoList);
     }
 
-    public ResponseEntity<MessageResponse> updateLocation(Long id, LocationRequest locationRequest) throws BadRequestException{
+    public ResponseEntity<MessageResponse> updateLocation(Long id, LocationDto locationDto) throws BadRequestException{
         Optional<Location> optionalLocation = locationRepo.findById(id);
         if (optionalLocation.isEmpty())
             throw new BadRequestException("Error: Location with this id:" + id + "is not found");
         Location findLocation = optionalLocation.get();
 
-        if (locationRequest.getAddress() != null){
-            if (locationRequest.getAddress().isEmpty())
+        if (locationDto.getAddress() != null){
+            if (locationDto.getAddress().isEmpty())
                 throw new BadRequestException("Error: Address('address') must not be empty");
-            findLocation.setAddress(locationRequest.getAddress());
+            findLocation.setAddress(locationDto.getAddress());
         }
 
-        if (locationRequest.getName() != null){
-            findLocation.setName(locationRequest.getName());
+        if (locationDto.getName() != null){
+            findLocation.setName(locationDto.getName());
         }
 
-        if (locationRequest.getStatus() != null) {
+        if (locationDto.getStatus() != null) {
             LocationStatus oldStatus = locationStatusRepo
                     .findByStatus(findLocation.getStatus().getStatus())
                     .orElseThrow(() -> new RuntimeException("Error, Old location status is not found"));
             oldStatus.removeLocation(findLocation);
 
             LocationStatus newStatus = locationStatusRepo
-                    .findByStatus(locationRequest.getStatus())
+                    .findByStatus(locationDto.getStatus())
                     .orElseThrow(() -> new BadRequestException("Error, New location status('status') is not found"));
             newStatus.addLocation(findLocation);
         }

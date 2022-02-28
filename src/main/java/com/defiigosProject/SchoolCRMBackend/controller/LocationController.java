@@ -1,7 +1,7 @@
 package com.defiigosProject.SchoolCRMBackend.controller;
 
-import com.defiigosProject.SchoolCRMBackend.dto.request.LocationRequest;
-import com.defiigosProject.SchoolCRMBackend.dto.response.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.LocationDto;
+import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
 import com.defiigosProject.SchoolCRMBackend.service.LocationService;
 import org.springframework.http.ResponseEntity;
@@ -24,24 +24,24 @@ public class LocationController {
             @RequestParam(value = "address", required = false) String address,
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "status", required = false) String status
-    ){
+    ) {
         return locationService.getLocation(id, address, name, status);
     }
 
     //    TODO авторизация ? только так ? -> @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<MessageResponse> createLocation(@RequestBody LocationRequest locationRequest)
+    public ResponseEntity<MessageResponse> createLocation(@RequestBody LocationDto locationDto)
             throws BadRequestException {
-        return locationService.createLocation(locationRequest);
+        return locationService.createLocation(locationDto);
     }
 
 //    TODO авторизация @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<MessageResponse> updateLocation(
             @PathVariable(value = "id") Long id,
-            @RequestBody LocationRequest locationRequest
+            @RequestBody LocationDto locationDto
     ) throws BadRequestException {
-        return locationService.updateLocation(id, locationRequest);
+        return locationService.updateLocation(id, locationDto);
     }
 
 //    TODO авторизация hasRole('ADMIN')")

@@ -1,7 +1,7 @@
 package com.defiigosProject.SchoolCRMBackend.controller;
 
-import com.defiigosProject.SchoolCRMBackend.dto.request.RequestStudentRequest;
-import com.defiigosProject.SchoolCRMBackend.dto.response.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.RequestStudentDto;
 import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
 import com.defiigosProject.SchoolCRMBackend.service.RequestStudentService;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +20,8 @@ public class RequestStudentController {
 
     @PostMapping("/create")
     public ResponseEntity<MessageResponse> createRequestStudent(
-            @RequestBody RequestStudentRequest requestStudentRequest) throws BadRequestException {
-        return requestStudentService.createRequestStudent(requestStudentRequest);
+            @RequestBody RequestStudentDto requestStudentDto) throws BadRequestException {
+        return requestStudentService.createRequestStudent(requestStudentDto);
     }
 
 //    TODO авторизация @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -32,7 +32,7 @@ public class RequestStudentController {
             @RequestParam(value = "phone", required = false) String phone,
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "locationId", required = false) Long locationId
-    ){
+    ) {
         return requestStudentService.getRequestStudent(id, name, phone, status, locationId);
     }
 
@@ -40,9 +40,9 @@ public class RequestStudentController {
     @PutMapping("/{id}")
     public ResponseEntity<MessageResponse> updateRequestStudent(
             @PathVariable(value = "id") Long id,
-            @RequestBody RequestStudentRequest requestStudentRequest
+            @RequestBody RequestStudentDto requestStudentDto
             ) throws BadRequestException {
-        return requestStudentService.updateRequestStudent(id, requestStudentRequest);
+        return requestStudentService.updateRequestStudent(id, requestStudentDto);
     }
 
 //    TODO авторизация @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")

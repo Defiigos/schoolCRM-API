@@ -1,4 +1,4 @@
-package com.defiigosProject.SchoolCRMBackend.dto.response;
+package com.defiigosProject.SchoolCRMBackend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class MessageResponse {
-    private String name;
+    private String message;
 }

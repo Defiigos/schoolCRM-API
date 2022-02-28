@@ -1,13 +1,15 @@
-package com.defiigosProject.SchoolCRMBackend.dto.request;
+package com.defiigosProject.SchoolCRMBackend.dto;
 
-import com.defiigosProject.SchoolCRMBackend.model.Location;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.RequestStudentStatusType;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-public class RequestStudentRequest {
+@AllArgsConstructor
+public class RequestStudentDto {
+    private Long id;
     private String name;
     private String phone;
-    private Location location;
     private RequestStudentStatusType status;
+    private LocationDto location;
 }

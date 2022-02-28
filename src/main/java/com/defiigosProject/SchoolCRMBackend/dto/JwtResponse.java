@@ -1,4 +1,4 @@
-package com.defiigosProject.SchoolCRMBackend.dto.response;
+package com.defiigosProject.SchoolCRMBackend.dto;
 
 import lombok.Getter;
 import lombok.Setter;

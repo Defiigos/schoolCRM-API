@@ -1,9 +1,9 @@
 package com.defiigosProject.SchoolCRMBackend.service;
 
-import com.defiigosProject.SchoolCRMBackend.dto.request.CreateUserRequest;
-import com.defiigosProject.SchoolCRMBackend.dto.response.JwtResponse;
-import com.defiigosProject.SchoolCRMBackend.dto.request.LoginRequest;
-import com.defiigosProject.SchoolCRMBackend.dto.response.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.UserDto;
+import com.defiigosProject.SchoolCRMBackend.dto.JwtResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.LoginDto;
+import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
 import com.defiigosProject.SchoolCRMBackend.model.Role;
 import com.defiigosProject.SchoolCRMBackend.model.User;
@@ -46,10 +46,10 @@ public class AuthenticateUserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public ResponseEntity authenticateUser(LoginRequest loginRequest){
+    public ResponseEntity authenticateUser(LoginDto loginDto){
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(), loginRequest.getPassword()));
+                        loginDto.getEmail(), loginDto.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToke(authentication);
@@ -67,9 +67,9 @@ public class AuthenticateUserService {
                 roles));
     }
 
-    public ResponseEntity<MessageResponse> createUser(CreateUserRequest createUserRequest) throws BadRequestException{
-        String createUserEmail = createUserRequest.getEmail();
-        String createUserPassword = createUserRequest.getPassword();
+    public ResponseEntity<MessageResponse> createUser(UserDto userDto) throws BadRequestException{
+        String createUserEmail = userDto.getEmail();
+        String createUserPassword = userDto.getPassword();
 
         if (createUserEmail == null || createUserEmail.isEmpty()){
             throw new BadRequestException("Error: Email('email') required");
@@ -84,12 +84,12 @@ public class AuthenticateUserService {
         }
 
         User user = new User(
-                createUserRequest.getUsername(),
+                userDto.getUsername(),
                 createUserEmail,
                 passwordEncoder.encode(createUserPassword)
         );
 
-        Set<String> requestRoles = createUserRequest.getRoles();
+        Set<String> requestRoles = userDto.getRoles();
         Set<Role> roles = new HashSet<>();
 
         if (requestRoles == null) {

@@ -1,6 +1,6 @@
 package com.defiigosProject.SchoolCRMBackend.exception;
 
-import com.defiigosProject.SchoolCRMBackend.dto.response.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
