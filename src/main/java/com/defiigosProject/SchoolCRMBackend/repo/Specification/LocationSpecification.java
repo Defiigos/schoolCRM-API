@@ -2,12 +2,12 @@ package com.defiigosProject.SchoolCRMBackend.repo.Specification;
 
 import com.defiigosProject.SchoolCRMBackend.model.Location;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.LocationStatusType;
-import com.defiigosProject.SchoolCRMBackend.model.enumerated.RequestStudentStatusType;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.JoinType;
 
 public class LocationSpecification {
+
     public static Specification<Location> withId(Long id){
         return (root, query, cb) -> id == null ? null : cb.equal(root.get("id"), id);
     }
@@ -20,14 +20,9 @@ public class LocationSpecification {
         return (root, query, cb) -> (name == null || name.isEmpty()) ? null : cb.equal(root.get("name"), name);
     }
 
-    public static Specification<Location> withStatus(String status){
+    public static Specification<Location> withStatus(LocationStatusType status){
         return (root, query, cb) -> {
-            try {
-                return status == null ? null :
-                        cb.equal(root.join("locationStatus", JoinType.LEFT).get("status"), LocationStatusType.valueOf(status));
-            } catch (IllegalArgumentException e){
-                return null;
-            }
+                return status == null ? null : cb.equal(root.join("status", JoinType.LEFT).get("status"), status);
         };
     }
 }

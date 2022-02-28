@@ -3,6 +3,8 @@ package com.defiigosProject.SchoolCRMBackend.service;
 import com.defiigosProject.SchoolCRMBackend.dto.LocationDto;
 import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
+import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
+import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
 import com.defiigosProject.SchoolCRMBackend.model.Location;
 import com.defiigosProject.SchoolCRMBackend.model.LocationStatus;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.LocationStatusType;
@@ -29,25 +31,27 @@ public class LocationService {
         this.locationStatusRepo = locationStatusRepo;
     }
 
-    public ResponseEntity<MessageResponse> createLocation(LocationDto locationDto) throws BadRequestException {
+    public ResponseEntity<MessageResponse> createLocation(LocationDto locationDto)
+            throws BadRequestException, FieldRequiredException {
         if (locationDto.getAddress() == null || locationDto.getAddress().isEmpty()){
-            throw new BadRequestException("Error: Address('address') required");
+            throw new FieldRequiredException("address");
         }
 
         if (locationRepo.existsByAddress(locationDto.getAddress())){
-            throw new BadRequestException("Error: Location with tis Address('address') already exist");
+            throw new BadRequestException("Error: Location with this Address('address') already exist");
         }
 
         Location newLocation = new Location(locationDto.getAddress(), locationDto.getName());
         LocationStatus newStatus = locationStatusRepo.findByStatus(LocationStatusType.LOCATION_ACTIVE)
-                .orElseThrow(() -> new RuntimeException("Error, Location status (LOCATION_ACTIVE) is not found"));
+                .orElseThrow(() -> new RuntimeException("Error, Location status "
+                        + LocationStatusType.LOCATION_ACTIVE + " is not found"));
         newStatus.addLocation(newLocation);
 
         locationRepo.save(newLocation);
         return ResponseEntity.ok(new MessageResponse("Location successfully created"));
     }
 
-    public ResponseEntity<List<LocationDto>> getLocation(Long id, String address, String name, String status){
+    public ResponseEntity<List<LocationDto>> getLocation(Long id, String address, String name, LocationStatusType status){
         List<Location> locationList = locationRepo.findAll(
                 where(withId(id))
                         .and(withAddress(address))
@@ -68,10 +72,11 @@ public class LocationService {
         return ResponseEntity.ok(locationDtoList);
     }
 
-    public ResponseEntity<MessageResponse> updateLocation(Long id, LocationDto locationDto) throws BadRequestException{
+    public ResponseEntity<MessageResponse> updateLocation(Long id, LocationDto locationDto)
+            throws BadRequestException, EntityNotFoundException {
         Optional<Location> optionalLocation = locationRepo.findById(id);
         if (optionalLocation.isEmpty())
-            throw new BadRequestException("Error: Location with this id:" + id + "is not found");
+            throw new EntityNotFoundException("location with this id:" + id);
         Location findLocation = optionalLocation.get();
 
         if (locationDto.getAddress() != null){
@@ -92,7 +97,7 @@ public class LocationService {
 
             LocationStatus newStatus = locationStatusRepo
                     .findByStatus(locationDto.getStatus())
-                    .orElseThrow(() -> new BadRequestException("Error, New location status('status') is not found"));
+                    .orElseThrow(() -> new javax.persistence.EntityNotFoundException("location status"));
             newStatus.addLocation(findLocation);
         }
 
@@ -100,11 +105,11 @@ public class LocationService {
         return ResponseEntity.ok(new MessageResponse("Location successfully updated"));
     }
 
-    public ResponseEntity<MessageResponse> deleteLocation(Long id) throws BadRequestException {
+    public ResponseEntity<MessageResponse> deleteLocation(Long id) throws BadRequestException, EntityNotFoundException {
         Optional<Location> optionalLocation = locationRepo.findById(id);
 
         if (optionalLocation.isEmpty())
-            throw new BadRequestException("Error: Location with this id:" + id + "is not found");
+            throw new EntityNotFoundException("location with this id:" + id);
         Location deletedLocation = optionalLocation.get();
 
         if (!deletedLocation.getRequestStudentList().isEmpty())

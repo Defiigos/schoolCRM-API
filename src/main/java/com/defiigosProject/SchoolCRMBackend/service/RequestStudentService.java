@@ -4,6 +4,8 @@ import com.defiigosProject.SchoolCRMBackend.dto.LocationDto;
 import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.dto.RequestStudentDto;
 import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
+import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
+import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
 import com.defiigosProject.SchoolCRMBackend.model.Location;
 import com.defiigosProject.SchoolCRMBackend.model.RequestStudent;
 import com.defiigosProject.SchoolCRMBackend.model.RequestStudentStatus;
@@ -28,21 +30,22 @@ public class RequestStudentService {
     private final RequestStudentRepo requestStudentRepo;
     private final LocationRepo locationRepo;
 
-    public RequestStudentService(RequestStudentStatusRepo requestStudentStatusRepo, RequestStudentRepo requestStudentRepo, LocationRepo locationRepo) {
+    public RequestStudentService(RequestStudentStatusRepo requestStudentStatusRepo,
+                                 RequestStudentRepo requestStudentRepo, LocationRepo locationRepo) {
         this.requestStudentStatusRepo = requestStudentStatusRepo;
         this.requestStudentRepo = requestStudentRepo;
         this.locationRepo = locationRepo;
     }
 
     public ResponseEntity<MessageResponse> createRequestStudent(
-            RequestStudentDto requestStudentDto) throws BadRequestException {
+            RequestStudentDto requestStudentDto) throws FieldRequiredException, EntityNotFoundException {
 
         if (requestStudentDto.getName() == null || requestStudentDto.getName().isEmpty()){
-            throw new BadRequestException("Error: Name (\"name\") required");
+            throw new FieldRequiredException("name");
         }
 
         if (requestStudentDto.getPhone() == null || requestStudentDto.getPhone().isEmpty()){
-            throw new BadRequestException("Error: Phone (\"phone\") required");
+            throw new FieldRequiredException("phone");
         }
 
 
@@ -51,16 +54,17 @@ public class RequestStudentService {
                 requestStudentDto.getPhone()
         );
         RequestStudentStatus newStatus = requestStudentStatusRepo.findByStatus(RequestStudentStatusType.REQUEST_NEW)
-                .orElseThrow(() -> new RuntimeException("Error, Request student status (REQUEST_NEW) is not found"));
+                .orElseThrow(() -> new RuntimeException("Error, Request student status "
+                        + RequestStudentStatusType.REQUEST_NEW + " is not found"));
         newStatus.addRequestStudent(newRequestStudent);
 
         if (requestStudentDto.getLocation() != null){
             if (requestStudentDto.getLocation().getId() == null)
-                throw new BadRequestException("Error: Location id (\"id\") required");
+                throw new FieldRequiredException("location id");
 
             Optional<Location> optionalFindLocation = locationRepo.findById(requestStudentDto.getLocation().getId());
             if (optionalFindLocation.isEmpty())
-                throw new BadRequestException("Error: Location(\"location\") is not found");
+                throw new EntityNotFoundException("location");
             Location findLocation = optionalFindLocation.get();
 
             findLocation.addRequestStudent(newRequestStudent);
@@ -71,7 +75,7 @@ public class RequestStudentService {
     }
 
     public ResponseEntity<List<RequestStudentDto>> getRequestStudent(
-            Long id, String name, String phone, String status, Long locationId){
+            Long id, String name, String phone, RequestStudentStatusType status, Long locationId){
 
         List<RequestStudent> requestStudentList = requestStudentRepo.findAll(
                 where(RequestStudentSpecification.withId(id))
@@ -115,11 +119,12 @@ public class RequestStudentService {
     }
 
     public ResponseEntity<MessageResponse> updateRequestStudent(
-            Long id, RequestStudentDto requestStudentDto) throws BadRequestException {
+            Long id, RequestStudentDto requestStudentDto)
+            throws BadRequestException, EntityNotFoundException, FieldRequiredException {
 
         Optional<RequestStudent> optionalRequestStudent = requestStudentRepo.findById(id);
         if (optionalRequestStudent.isEmpty())
-            throw new BadRequestException("Error: Request student with id:" + id + " is not found");
+            throw new EntityNotFoundException("Request student with id:" + id);
         RequestStudent findRequestStudent = optionalRequestStudent.get();
 
 
@@ -145,17 +150,17 @@ public class RequestStudentService {
 
             RequestStudentStatus newStatus = requestStudentStatusRepo
                     .findByStatus(requestStudentDto.getStatus())
-                    .orElseThrow(() -> new BadRequestException("Error, New request student status('status') is not found"));
+                    .orElseThrow(() -> new javax.persistence.EntityNotFoundException("request student status"));
             newStatus.addRequestStudent(findRequestStudent);
         }
 
         if (requestStudentDto.getLocation() != null){
           if (requestStudentDto.getLocation().getId() == null)
-                throw new BadRequestException("Error: Location id (\"id\") required");
+                throw new FieldRequiredException("location");
 
             Optional<Location> optionalFindLocation = locationRepo.findById(requestStudentDto.getLocation().getId());
             if (optionalFindLocation.isEmpty())
-                throw new BadRequestException("Error: Location(\"location\") is not found");
+                throw new EntityNotFoundException("location");
 
             optionalFindLocation.get().addRequestStudent(findRequestStudent);
         }

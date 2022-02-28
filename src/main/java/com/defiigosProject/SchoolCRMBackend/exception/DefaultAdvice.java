@@ -8,8 +8,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class DefaultAdvice {
 
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<MessageResponse> handleException(BadRequestException e){
+    @ExceptionHandler({
+            BadRequestException.class,
+            EnumConstantNotFoundException.class,
+            FieldRequiredException.class,
+            EntityNotFoundException.class
+    })
+    public ResponseEntity<MessageResponse> handleException(Exception e){
         return ResponseEntity
                 .badRequest()
                 .body(new MessageResponse(e.getMessage()));

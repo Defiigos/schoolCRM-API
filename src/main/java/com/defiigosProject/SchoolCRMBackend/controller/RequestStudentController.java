@@ -3,6 +3,10 @@ package com.defiigosProject.SchoolCRMBackend.controller;
 import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.dto.RequestStudentDto;
 import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
+import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
+import com.defiigosProject.SchoolCRMBackend.exception.EnumConstantNotFoundException;
+import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
+import com.defiigosProject.SchoolCRMBackend.model.enumerated.RequestStudentStatusType;
 import com.defiigosProject.SchoolCRMBackend.service.RequestStudentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +24,7 @@ public class RequestStudentController {
 
     @PostMapping("/create")
     public ResponseEntity<MessageResponse> createRequestStudent(
-            @RequestBody RequestStudentDto requestStudentDto) throws BadRequestException {
+            @RequestBody RequestStudentDto requestStudentDto) throws FieldRequiredException, EntityNotFoundException {
         return requestStudentService.createRequestStudent(requestStudentDto);
     }
 
@@ -32,8 +36,16 @@ public class RequestStudentController {
             @RequestParam(value = "phone", required = false) String phone,
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "locationId", required = false) Long locationId
-    ) {
-        return requestStudentService.getRequestStudent(id, name, phone, status, locationId);
+    ) throws EnumConstantNotFoundException {
+        try {
+            if (status != null)
+                return requestStudentService.getRequestStudent(
+                        id, name, phone, RequestStudentStatusType.valueOf(status), locationId);
+            else
+                return requestStudentService.getRequestStudent(id, name, phone, null, locationId);
+        } catch (IllegalArgumentException e) {
+            throw new EnumConstantNotFoundException(RequestStudentStatusType.class, status);
+        }
     }
 
 //    TODO авторизация @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -41,7 +53,7 @@ public class RequestStudentController {
     public ResponseEntity<MessageResponse> updateRequestStudent(
             @PathVariable(value = "id") Long id,
             @RequestBody RequestStudentDto requestStudentDto
-            ) throws BadRequestException {
+            ) throws BadRequestException, EntityNotFoundException, FieldRequiredException {
         return requestStudentService.updateRequestStudent(id, requestStudentDto);
     }
 
