@@ -19,14 +19,14 @@ public class PaymentAmount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private int sum;
+    @Column(nullable = false, unique = true)
+    private Float sum;
     private String name;
 
     @OneToMany(mappedBy = "amount", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> paymentList = new ArrayList<>();
 
-    public PaymentAmount(int sum, String name) {
+    public PaymentAmount(Float sum, String name) {
         this.sum = sum;
         this.name = name;
     }
