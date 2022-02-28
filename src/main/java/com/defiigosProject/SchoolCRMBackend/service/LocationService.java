@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.defiigosProject.SchoolCRMBackend.repo.Specification.LocationSpecification.*;
 import static org.springframework.data.jpa.domain.Specification.where;
@@ -31,6 +30,7 @@ public class LocationService {
 
     public ResponseEntity<MessageResponse> createLocation(LocationDto locationDto)
             throws FieldRequiredException, EntityAlreadyExistException {
+
         if (locationDto.getAddress() == null || locationDto.getAddress().isEmpty()){
             throw new FieldRequiredException("address");
         }
@@ -50,7 +50,9 @@ public class LocationService {
         return ResponseEntity.ok(new MessageResponse("Location successfully created"));
     }
 
-    public ResponseEntity<List<LocationDto>> getLocation(Long id, String address, String name, LocationStatusType status){
+    public ResponseEntity<List<LocationDto>> getLocation(
+            Long id, String address, String name, LocationStatusType status){
+
         List<Location> locationList = locationRepo.findAll(
                 where(withId(id))
                         .and(withAddress(address))
@@ -73,10 +75,9 @@ public class LocationService {
 
     public ResponseEntity<MessageResponse> updateLocation(Long id, LocationDto locationDto)
             throws EntityNotFoundException, FieldNotNullException {
-        Optional<Location> optionalLocation = locationRepo.findById(id);
-        if (optionalLocation.isEmpty())
-            throw new EntityNotFoundException("location with this id:" + id);
-        Location findLocation = optionalLocation.get();
+
+        Location findLocation = locationRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("location with this id:" + id));
 
         if (locationDto.getAddress() != null){
             if (locationDto.getAddress().isEmpty())
@@ -104,12 +105,11 @@ public class LocationService {
         return ResponseEntity.ok(new MessageResponse("Location successfully updated"));
     }
 
-    public ResponseEntity<MessageResponse> deleteLocation(Long id) throws EntityNotFoundException, EntityUsedException {
-        Optional<Location> optionalLocation = locationRepo.findById(id);
+    public ResponseEntity<MessageResponse> deleteLocation(Long id)
+            throws EntityNotFoundException, EntityUsedException {
 
-        if (optionalLocation.isEmpty())
-            throw new EntityNotFoundException("location with this id:" + id);
-        Location deletedLocation = optionalLocation.get();
+        Location deletedLocation = locationRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("location with this id:" + id));
 
         if (!deletedLocation.getRequestStudentList().isEmpty())
             throw new EntityUsedException("location", "request students");
