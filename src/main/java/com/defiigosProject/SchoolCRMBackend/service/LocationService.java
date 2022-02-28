@@ -39,10 +39,11 @@ public class LocationService {
             throw new EntityAlreadyExistException("location");
         }
 
-        Location newLocation = new Location(locationDto.getAddress(), locationDto.getName());
         LocationStatus newStatus = locationStatusRepo.findByStatus(LocationStatusType.LOCATION_ACTIVE)
                 .orElseThrow(() -> new RuntimeException("Error, Location status "
                         + LocationStatusType.LOCATION_ACTIVE + " is not found"));
+
+        Location newLocation = new Location(locationDto.getAddress(), locationDto.getName());
         newStatus.addLocation(newLocation);
 
         locationRepo.save(newLocation);
