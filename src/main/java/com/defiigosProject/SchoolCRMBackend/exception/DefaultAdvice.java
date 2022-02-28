@@ -10,9 +10,12 @@ public class DefaultAdvice {
 
     @ExceptionHandler({
             BadRequestException.class,
-            EnumConstantNotFoundException.class,
+            BadEnumException.class,
             FieldRequiredException.class,
-            EntityNotFoundException.class
+            FieldNotNullException.class,
+            EntityNotFoundException.class,
+            EntityAlreadyExistException.class,
+            EntityUsedException.class
     })
     public ResponseEntity<MessageResponse> handleException(Exception e){
         return ResponseEntity

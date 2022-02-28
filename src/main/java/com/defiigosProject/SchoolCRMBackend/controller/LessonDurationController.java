@@ -2,7 +2,7 @@ package com.defiigosProject.SchoolCRMBackend.controller;
 
 import com.defiigosProject.SchoolCRMBackend.dto.LessonDurationDto;
 import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
-import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
+import com.defiigosProject.SchoolCRMBackend.exception.*;
 import com.defiigosProject.SchoolCRMBackend.service.LessonDurationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +43,8 @@ public class LessonDurationController {
 //    TODO авторизация @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<MessageResponse> createLessonDuration(
-            @RequestBody LessonDurationDto lessonDurationDto) throws BadRequestException {
+            @RequestBody LessonDurationDto lessonDurationDto)
+            throws FieldRequiredException, EntityAlreadyExistException {
         return lessonDurationService.createLessonDuration(lessonDurationDto);
     }
 
@@ -52,14 +53,14 @@ public class LessonDurationController {
     public ResponseEntity<MessageResponse> updateLessonDuration(
             @PathVariable(value = "id") Long id,
             @RequestBody LessonDurationDto lessonDurationDto
-    ) throws BadRequestException {
+    ) throws EntityNotFoundException, FieldNotNullException {
         return lessonDurationService.updateLessonDuration(id, lessonDurationDto);
     }
 
 //    TODO авторизация hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageResponse> deleteLessonDuration(
-            @PathVariable(value = "id") Long id) throws BadRequestException {
+            @PathVariable(value = "id") Long id) throws EntityNotFoundException, EntityUsedException {
         return lessonDurationService.deleteLessonDuration(id);
     }
 }

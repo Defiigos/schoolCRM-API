@@ -2,7 +2,7 @@ package com.defiigosProject.SchoolCRMBackend.service;
 
 import com.defiigosProject.SchoolCRMBackend.dto.LessonDurationDto;
 import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
-import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
+import com.defiigosProject.SchoolCRMBackend.exception.*;
 import com.defiigosProject.SchoolCRMBackend.model.LessonDuration;
 import com.defiigosProject.SchoolCRMBackend.repo.LessonDurationRepo;
 import org.springframework.http.ResponseEntity;
@@ -26,14 +26,14 @@ public class LessonDurationService {
     }
 
     public ResponseEntity<MessageResponse> createLessonDuration(LessonDurationDto lessonDurationDto)
-            throws BadRequestException {
+            throws FieldRequiredException, EntityAlreadyExistException {
 
         if (lessonDurationDto.getTime() == null || lessonDurationDto.getTime().toString().isEmpty()){
-            throw new BadRequestException("Error: Time('time') required");
+            throw new FieldRequiredException("time");
         }
 
         if (lessonDurationRepo.existsByTime(lessonDurationDto.getTime())){
-            throw new BadRequestException("Error: Lesson duration with this Time('time') already exist");
+            throw new EntityAlreadyExistException("lesson duration");
         }
 
         LessonDuration newLessonDuration = new LessonDuration(lessonDurationDto.getTime(), lessonDurationDto.getName());
@@ -42,6 +42,7 @@ public class LessonDurationService {
     }
 
     public ResponseEntity<List<LessonDurationDto>> getLessonDuration(Long id, LocalTime time, String name) {
+
         List<LessonDuration> lessonDurationList = lessonDurationRepo.findAll(
                 where(withId(id))
                         .and(withTime(time))
@@ -61,18 +62,17 @@ public class LessonDurationService {
     }
 
     public ResponseEntity<MessageResponse> updateLessonDuration(Long id, LessonDurationDto lessonDurationDto)
-            throws BadRequestException {
+            throws EntityNotFoundException, FieldNotNullException {
+
         Optional<LessonDuration> optionalLessonDuration = lessonDurationRepo.findById(id);
-
         if (optionalLessonDuration.isEmpty())
-            throw new BadRequestException("Error: Lesson duration with this id:" + id + "is not found");
+            throw new EntityNotFoundException("lesson duration with this id:" + id);
         LessonDuration updatedLessonDuration = optionalLessonDuration.get();
-
 
 
         if (lessonDurationDto.getTime() != null){
             if (lessonDurationDto.getTime().toString().isEmpty())
-                throw new BadRequestException("Error: Time('time') must not be empty");
+                throw new FieldNotNullException("time");
             updatedLessonDuration.setTime(lessonDurationDto.getTime());
         }
 
@@ -84,16 +84,17 @@ public class LessonDurationService {
         return ResponseEntity.ok(new MessageResponse("Lesson duration successfully updated"));
     }
 
-    public ResponseEntity<MessageResponse> deleteLessonDuration(Long id) throws BadRequestException {
+    public ResponseEntity<MessageResponse> deleteLessonDuration(Long id)
+            throws EntityNotFoundException, EntityUsedException {
 
         Optional<LessonDuration> optionalLessonDuration = lessonDurationRepo.findById(id);
 
         if (optionalLessonDuration.isEmpty())
-            throw new BadRequestException("Error: Lesson duration with this id:" + id + "is not found");
+            throw new EntityNotFoundException("lesson duration with this id:" + id);
         LessonDuration deletedLessonDuration = optionalLessonDuration.get();
 
         if (!deletedLessonDuration.getLessonList().isEmpty())
-            throw new BadRequestException("This location is used by lessons");
+            throw new EntityUsedException("location", "lessons");
 
         lessonDurationRepo.deleteById(id);
         return ResponseEntity.ok(new MessageResponse("Lesson duration successfully deleted"));

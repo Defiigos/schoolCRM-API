@@ -5,6 +5,7 @@ import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.dto.RequestStudentDto;
 import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
 import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
+import com.defiigosProject.SchoolCRMBackend.exception.FieldNotNullException;
 import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
 import com.defiigosProject.SchoolCRMBackend.model.Location;
 import com.defiigosProject.SchoolCRMBackend.model.RequestStudent;
@@ -120,7 +121,7 @@ public class RequestStudentService {
 
     public ResponseEntity<MessageResponse> updateRequestStudent(
             Long id, RequestStudentDto requestStudentDto)
-            throws BadRequestException, EntityNotFoundException, FieldRequiredException {
+            throws EntityNotFoundException, FieldRequiredException, FieldNotNullException {
 
         Optional<RequestStudent> optionalRequestStudent = requestStudentRepo.findById(id);
         if (optionalRequestStudent.isEmpty())
@@ -130,14 +131,14 @@ public class RequestStudentService {
 
         if (requestStudentDto.getName() != null ) {
             if (requestStudentDto.getName().isEmpty()) {
-                throw new BadRequestException("Error: Name('name') must not be empty");
+                throw new FieldNotNullException("name");
             }
             findRequestStudent.setName(requestStudentDto.getName());
         }
 
         if (requestStudentDto.getPhone() != null) {
             if (requestStudentDto.getPhone().isEmpty()){
-                throw new BadRequestException("Error: Phone('phone') must not be empty");
+                throw new FieldNotNullException("phone");
             }
             findRequestStudent.setPhone(requestStudentDto.getPhone());
         }
@@ -150,7 +151,7 @@ public class RequestStudentService {
 
             RequestStudentStatus newStatus = requestStudentStatusRepo
                     .findByStatus(requestStudentDto.getStatus())
-                    .orElseThrow(() -> new javax.persistence.EntityNotFoundException("request student status"));
+                    .orElseThrow(() -> new EntityNotFoundException("request student status"));
             newStatus.addRequestStudent(findRequestStudent);
         }
 
@@ -169,13 +170,13 @@ public class RequestStudentService {
         return ResponseEntity.ok(new MessageResponse("Request student successfully updated"));
     }
 
-    public ResponseEntity<MessageResponse> deleteRequestStudent(Long id) throws BadRequestException{
+    public ResponseEntity<MessageResponse> deleteRequestStudent(Long id) throws EntityNotFoundException {
+
         Optional<RequestStudent> optionalRequestStudent = requestStudentRepo.findById(id);
         if (optionalRequestStudent.isEmpty())
-            throw new BadRequestException("Error: Request student with id:" + id + " is not found");
+            throw new EntityNotFoundException("Request student with id:");
 
         requestStudentRepo.deleteById(id);
-
         return ResponseEntity.ok(new MessageResponse("Request student successfully deleted"));
     }
 }

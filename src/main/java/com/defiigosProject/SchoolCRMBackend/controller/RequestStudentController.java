@@ -2,10 +2,7 @@ package com.defiigosProject.SchoolCRMBackend.controller;
 
 import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.dto.RequestStudentDto;
-import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
-import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
-import com.defiigosProject.SchoolCRMBackend.exception.EnumConstantNotFoundException;
-import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
+import com.defiigosProject.SchoolCRMBackend.exception.*;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.RequestStudentStatusType;
 import com.defiigosProject.SchoolCRMBackend.service.RequestStudentService;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +33,7 @@ public class RequestStudentController {
             @RequestParam(value = "phone", required = false) String phone,
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "locationId", required = false) Long locationId
-    ) throws EnumConstantNotFoundException {
+    ) throws BadEnumException {
         try {
             if (status != null)
                 return requestStudentService.getRequestStudent(
@@ -44,7 +41,7 @@ public class RequestStudentController {
             else
                 return requestStudentService.getRequestStudent(id, name, phone, null, locationId);
         } catch (IllegalArgumentException e) {
-            throw new EnumConstantNotFoundException(RequestStudentStatusType.class, status);
+            throw new BadEnumException(RequestStudentStatusType.class, status);
         }
     }
 
@@ -53,14 +50,14 @@ public class RequestStudentController {
     public ResponseEntity<MessageResponse> updateRequestStudent(
             @PathVariable(value = "id") Long id,
             @RequestBody RequestStudentDto requestStudentDto
-            ) throws BadRequestException, EntityNotFoundException, FieldRequiredException {
+            ) throws EntityNotFoundException, FieldRequiredException, FieldNotNullException {
         return requestStudentService.updateRequestStudent(id, requestStudentDto);
     }
 
 //    TODO авторизация @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageResponse> deleteRequestStudent(
-            @PathVariable(value = "id") Long id) throws BadRequestException {
+            @PathVariable(value = "id") Long id) throws EntityNotFoundException {
         return requestStudentService.deleteRequestStudent(id);
     }
 }
