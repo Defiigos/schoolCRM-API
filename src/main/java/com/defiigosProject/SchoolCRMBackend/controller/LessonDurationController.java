@@ -53,7 +53,7 @@ public class LessonDurationController {
     public ResponseEntity<MessageResponse> updateLessonDuration(
             @PathVariable(value = "id") Long id,
             @RequestBody LessonDurationDto lessonDurationDto
-    ) throws EntityNotFoundException, FieldNotNullException {
+    ) throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException {
         return lessonDurationService.updateLessonDuration(id, lessonDurationDto);
     }
 

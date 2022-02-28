@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.defiigosProject.SchoolCRMBackend.repo.Specification.LessonDurationSpecification.*;
 import static org.springframework.data.jpa.domain.Specification.where;
@@ -62,18 +61,22 @@ public class LessonDurationService {
     }
 
     public ResponseEntity<MessageResponse> updateLessonDuration(Long id, LessonDurationDto lessonDurationDto)
-            throws EntityNotFoundException, FieldNotNullException {
+            throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException {
 
-        Optional<LessonDuration> optionalLessonDuration = lessonDurationRepo.findById(id);
-        if (optionalLessonDuration.isEmpty())
-            throw new EntityNotFoundException("lesson duration with this id:" + id);
-        LessonDuration updatedLessonDuration = optionalLessonDuration.get();
+        LessonDuration updatedLessonDuration = lessonDurationRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("lesson duration with this id:" + id));
 
 
         if (lessonDurationDto.getTime() != null){
             if (lessonDurationDto.getTime().toString().isEmpty())
                 throw new FieldNotNullException("time");
-            updatedLessonDuration.setTime(lessonDurationDto.getTime());
+
+            if (!updatedLessonDuration.getTime().equals(lessonDurationDto.getTime())) {
+                if (lessonDurationRepo.existsByTime(lessonDurationDto.getTime())) {
+                    throw new EntityAlreadyExistException("lesson duration");
+                }
+                updatedLessonDuration.setTime(lessonDurationDto.getTime());
+            }
         }
 
         if (lessonDurationDto.getName() != null){
@@ -87,11 +90,8 @@ public class LessonDurationService {
     public ResponseEntity<MessageResponse> deleteLessonDuration(Long id)
             throws EntityNotFoundException, EntityUsedException {
 
-        Optional<LessonDuration> optionalLessonDuration = lessonDurationRepo.findById(id);
-
-        if (optionalLessonDuration.isEmpty())
-            throw new EntityNotFoundException("lesson duration with this id:" + id);
-        LessonDuration deletedLessonDuration = optionalLessonDuration.get();
+        LessonDuration deletedLessonDuration = lessonDurationRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("lesson duration with this id:" + id));
 
         if (!deletedLessonDuration.getLessonList().isEmpty())
             throw new EntityUsedException("location", "lessons");

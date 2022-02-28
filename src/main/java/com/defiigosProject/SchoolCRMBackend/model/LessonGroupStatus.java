@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "location_statuses")
+@Table(name = "lesson_group_statuses")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,7 +21,7 @@ public class LessonGroupStatus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 22)
     @Enumerated(EnumType.STRING)
     private LessonGroupStatusType status;
 
