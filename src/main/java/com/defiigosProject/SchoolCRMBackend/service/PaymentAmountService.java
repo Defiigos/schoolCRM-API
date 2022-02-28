@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.defiigosProject.SchoolCRMBackend.repo.Specification.PaymentAmountSpecification.*;
 import static org.springframework.data.jpa.domain.Specification.where;
@@ -63,10 +62,8 @@ public class PaymentAmountService {
     public ResponseEntity<MessageResponse> updatePaymentAmount(Long id, PaymentAmountDto paymentAmountDto)
             throws EntityNotFoundException, FieldNotNullException {
 
-        Optional<PaymentAmount> optionalPaymentAmount = paymentAmountRepo.findById(id);
-        if (optionalPaymentAmount.isEmpty())
-            throw new EntityNotFoundException("payment amount with this id:" + id);
-        PaymentAmount updatedPaymentAmount = optionalPaymentAmount.get();
+        PaymentAmount updatedPaymentAmount = paymentAmountRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("payment amount with this id:" + id));
 
 
         if (paymentAmountDto.getSum() != null){
@@ -85,11 +82,8 @@ public class PaymentAmountService {
 
     public ResponseEntity<MessageResponse> deletePaymentAmount(Long id) throws EntityNotFoundException, EntityUsedException {
 
-        Optional<PaymentAmount> optionalPaymentAmount = paymentAmountRepo.findById(id);
-
-        if (optionalPaymentAmount.isEmpty())
-            throw new EntityNotFoundException("payment amount with this id:" + id);
-        PaymentAmount deletedPaymentAmount = optionalPaymentAmount.get();
+        PaymentAmount deletedPaymentAmount = paymentAmountRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("payment amount with this id:" + id));
 
         if (!deletedPaymentAmount.getPaymentList().isEmpty())
             throw new EntityUsedException("payment amount", "payment");

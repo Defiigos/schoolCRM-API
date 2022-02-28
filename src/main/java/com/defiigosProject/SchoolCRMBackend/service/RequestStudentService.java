@@ -3,7 +3,6 @@ package com.defiigosProject.SchoolCRMBackend.service;
 import com.defiigosProject.SchoolCRMBackend.dto.LocationDto;
 import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.dto.RequestStudentDto;
-import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
 import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
 import com.defiigosProject.SchoolCRMBackend.exception.FieldNotNullException;
 import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
@@ -123,10 +122,8 @@ public class RequestStudentService {
             Long id, RequestStudentDto requestStudentDto)
             throws EntityNotFoundException, FieldRequiredException, FieldNotNullException {
 
-        Optional<RequestStudent> optionalRequestStudent = requestStudentRepo.findById(id);
-        if (optionalRequestStudent.isEmpty())
-            throw new EntityNotFoundException("Request student with id:" + id);
-        RequestStudent findRequestStudent = optionalRequestStudent.get();
+        RequestStudent findRequestStudent = requestStudentRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Request student with id:" + id));
 
 
         if (requestStudentDto.getName() != null ) {
@@ -172,9 +169,8 @@ public class RequestStudentService {
 
     public ResponseEntity<MessageResponse> deleteRequestStudent(Long id) throws EntityNotFoundException {
 
-        Optional<RequestStudent> optionalRequestStudent = requestStudentRepo.findById(id);
-        if (optionalRequestStudent.isEmpty())
-            throw new EntityNotFoundException("Request student with id:");
+        RequestStudent requestStudent = requestStudentRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Request student with id:"));
 
         requestStudentRepo.deleteById(id);
         return ResponseEntity.ok(new MessageResponse("Request student successfully deleted"));

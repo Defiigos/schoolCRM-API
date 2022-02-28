@@ -6,7 +6,6 @@ import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
 import com.defiigosProject.SchoolCRMBackend.exception.EntityUsedException;
 import com.defiigosProject.SchoolCRMBackend.exception.FieldNotNullException;
 import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
-import com.defiigosProject.SchoolCRMBackend.model.LocationStatus;
 import com.defiigosProject.SchoolCRMBackend.model.Student;
 import com.defiigosProject.SchoolCRMBackend.model.StudentStatus;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.LocationStatusType;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.defiigosProject.SchoolCRMBackend.repo.Specification.StudentSpecification.*;
 import static org.springframework.data.jpa.domain.Specification.where;
@@ -92,11 +90,8 @@ public class StudentService {
     public ResponseEntity<MessageResponse> updateStudent(Long id, StudentDto studentDto)
             throws EntityNotFoundException, FieldNotNullException {
 
-        Optional<Student> optionalStudent = studentRepo.findById(id);
-        if (optionalStudent.isEmpty())
-            throw new EntityNotFoundException("location with this id:" + id);
-
-        Student updatedStudent = optionalStudent.get();
+        Student updatedStudent = studentRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("location with this id:" + id));
 
         if (studentDto.getParentName() != null){
             if (studentDto.getParentName().isEmpty())
@@ -139,11 +134,9 @@ public class StudentService {
     }
 
     public ResponseEntity<MessageResponse> deleteStudent(Long id) throws EntityNotFoundException, EntityUsedException {
-        Optional<Student> optionalLocation = studentRepo.findById(id);
 
-        if (optionalLocation.isEmpty())
-            throw new EntityNotFoundException("student with this id:" + id);
-        Student deletedStudent = optionalLocation.get();
+        Student deletedStudent = studentRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("student with this id:" + id));
 
         if (!deletedStudent.getLessonGroups().isEmpty())
             throw new EntityUsedException("student", "lesson group");
