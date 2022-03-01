@@ -48,7 +48,7 @@ public class LessonController {
 //    TODO авторизация ? только так ? -> @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<MessageResponse> createLesson(@RequestBody LessonCreateRequest request)
-            throws FieldRequiredException, EntityAlreadyExistException, EntityNotFoundException, IllegalAccessException, InstantiationException, NoSuchFieldException {
+            throws FieldRequiredException, EntityNotFoundException, IllegalAccessException {
         return lessonService.createLesson(request);
     }
 

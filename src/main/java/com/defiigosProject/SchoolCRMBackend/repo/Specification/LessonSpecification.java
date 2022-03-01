@@ -1,7 +1,6 @@
 package com.defiigosProject.SchoolCRMBackend.repo.Specification;
 
 import com.defiigosProject.SchoolCRMBackend.model.Lesson;
-import com.defiigosProject.SchoolCRMBackend.model.Payment;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonStatusType;
 import org.springframework.data.jpa.domain.Specification;
 

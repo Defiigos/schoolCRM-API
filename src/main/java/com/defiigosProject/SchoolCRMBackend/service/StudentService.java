@@ -1,11 +1,11 @@
 package com.defiigosProject.SchoolCRMBackend.service;
 
-import com.defiigosProject.SchoolCRMBackend.dto.*;
+import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.StudentDto;
 import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
 import com.defiigosProject.SchoolCRMBackend.exception.EntityUsedException;
 import com.defiigosProject.SchoolCRMBackend.exception.FieldNotNullException;
 import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
-import com.defiigosProject.SchoolCRMBackend.model.Payment;
 import com.defiigosProject.SchoolCRMBackend.model.Student;
 import com.defiigosProject.SchoolCRMBackend.model.StudentStatus;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.StudentStatusType;
@@ -15,9 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.defiigosProject.SchoolCRMBackend.repo.Specification.StudentSpecification.*;
 import static org.springframework.data.jpa.domain.Specification.where;

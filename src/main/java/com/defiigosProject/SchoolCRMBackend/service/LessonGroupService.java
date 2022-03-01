@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -87,10 +86,6 @@ public class LessonGroupService {
 
         List<LessonGroupDto> lessonGroupDtoList = new ArrayList<>();
         for (LessonGroup lessonGroup: lessonGroupList) {
-            Set<StudentDto> studentDtos = new HashSet<>();
-            for (Student student: lessonGroup.getStudents()) {
-                studentDtos.add(StudentDto.build(student));
-            }
             lessonGroupDtoList.add(LessonGroupDto.build(lessonGroup));
         }
         return ResponseEntity.ok(lessonGroupDtoList);

@@ -93,9 +93,9 @@ public class LessonService {
         teacher.addLesson(newLesson);
         lessonGroup.addLesson(newLesson);
 
-        String paymentAnswer = " \n ";
+        StringBuilder paymentAnswer = new StringBuilder(" \n ");
         for (Student student: lessonGroup.getStudents())
-            paymentAnswer += paymentService.createPayment(newLesson, student, paymentAmount) + "\n ";
+            paymentAnswer.append(paymentService.createPayment(newLesson, student, paymentAmount)).append("\n ");
 
         return ResponseEntity.ok(new MessageResponse("Lesson successfully created!" + paymentAnswer));
     }
