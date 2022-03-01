@@ -5,7 +5,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "lesson_groups")
@@ -25,7 +27,7 @@ public class LessonGroup {
     private LessonGroupStatus status;
 
     @OneToMany(mappedBy = "lessonGroup", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Lesson> lessonList = new ArrayList<>();
+    private Set<Lesson> lessons = new HashSet<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "students_groups",
@@ -48,12 +50,12 @@ public class LessonGroup {
     }
 
     public void addLesson(Lesson lesson) {
-        this.lessonList.add(lesson);
+        this.lessons.add(lesson);
         lesson.setLessonGroup(this);
     }
 
     public void removeLesson(Lesson lesson){
-        this.lessonList.remove(lesson);
+        this.lessons.remove(lesson);
         lesson.setLessonGroup(null);
     }
 

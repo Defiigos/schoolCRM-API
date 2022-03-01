@@ -168,7 +168,31 @@ public class LessonGroupService {
         return ResponseEntity.ok(new MessageResponse("Lesson group successfully updated"));
     }
 
-//    TODO МОЖЕТ СТОИТ ДОБАВИТЬ addStudent и removeStudent ????
+    public ResponseEntity<MessageResponse> addStudent(Long id, Long studentDto) throws EntityNotFoundException {
+
+        LessonGroup updatedLessonGroup = lessonGroupRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("lesson group with this id:" + id));
+
+        Student addStudent = studentRepo.findById(studentDto).
+                orElseThrow(() -> new EntityNotFoundException("student with this id: " + studentDto));
+
+        updatedLessonGroup.addStudent(addStudent);
+        lessonGroupRepo.save(updatedLessonGroup);
+        return ResponseEntity.ok(new MessageResponse("Student successfully add"));
+    }
+
+    public ResponseEntity<MessageResponse> removeStudent(Long id, Long studentId) throws EntityNotFoundException {
+
+        LessonGroup updatedLessonGroup = lessonGroupRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("lesson group with this id:" + id));
+
+        Student removeStudent = studentRepo.findById(studentId).
+                orElseThrow(() -> new EntityNotFoundException("student with this id: " + studentId));
+
+        updatedLessonGroup.removeStudent(removeStudent);
+        lessonGroupRepo.save(updatedLessonGroup);
+        return ResponseEntity.ok(new MessageResponse("Student successfully remove"));
+    }
 
     public ResponseEntity<MessageResponse> deleteLessonGroup(Long id)
             throws EntityNotFoundException, EntityUsedException {
@@ -176,7 +200,7 @@ public class LessonGroupService {
         LessonGroup deletedLessonGroup = lessonGroupRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("lesson group with this id:" + id));
 
-        if (!deletedLessonGroup.getLessonList().isEmpty())
+        if (!deletedLessonGroup.getLessons().isEmpty())
             throw new EntityUsedException("lesson group", "lessons");
 
         if (!deletedLessonGroup.getStudents().isEmpty())

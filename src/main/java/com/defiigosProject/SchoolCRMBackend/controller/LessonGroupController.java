@@ -3,7 +3,9 @@ package com.defiigosProject.SchoolCRMBackend.controller;
 
 import com.defiigosProject.SchoolCRMBackend.dto.LessonGroupDto;
 import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.StudentDto;
 import com.defiigosProject.SchoolCRMBackend.exception.*;
+import com.defiigosProject.SchoolCRMBackend.model.Student;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonGroupStatusType;
 import com.defiigosProject.SchoolCRMBackend.service.LessonGroupService;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +55,22 @@ public class LessonGroupController {
             @RequestBody LessonGroupDto lessonGroupDto
     ) throws EntityNotFoundException, EntityAlreadyExistException, FieldRequiredException {
         return lessonGroupService.updateLessonGroup(id, lessonGroupDto);
+    }
+
+    @PostMapping("/{id}/student/{studentId}")
+    public ResponseEntity<MessageResponse> addStudent(
+            @PathVariable(value = "id") Long id,
+            @PathVariable(value = "studentId") Long studentId
+            ) throws EntityNotFoundException, FieldRequiredException {
+        return lessonGroupService.addStudent(id, studentId);
+    }
+
+    @DeleteMapping("/{id}/student/{studentId}")
+    public ResponseEntity<MessageResponse> removeStudent(
+            @PathVariable(value = "id") Long id,
+            @PathVariable(value = "studentId") Long studentId
+    ) throws EntityNotFoundException, FieldRequiredException {
+        return lessonGroupService.removeStudent(id, studentId);
     }
 
 //    TODO авторизация hasRole('ADMIN')")
