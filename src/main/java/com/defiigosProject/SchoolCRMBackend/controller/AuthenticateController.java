@@ -1,11 +1,8 @@
 package com.defiigosProject.SchoolCRMBackend.controller;
 
-import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
 import com.defiigosProject.SchoolCRMBackend.service.AuthenticateUserService;
-import com.defiigosProject.SchoolCRMBackend.dto.UserDto;
-import com.defiigosProject.SchoolCRMBackend.dto.LoginDto;
+import com.defiigosProject.SchoolCRMBackend.dto.LoginRequest;
 import com.defiigosProject.SchoolCRMBackend.dto.JwtResponse;
-import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,13 +18,7 @@ public class AuthenticateController {
     }
 
     @PostMapping("/signIn")
-    public ResponseEntity<JwtResponse> authUser(@RequestBody LoginDto loginDto) {
-        return authenticationUserService.authenticateUser(loginDto);
-    }
-
-    @PostMapping("/createUser")
-//   TODO авторизация @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MessageResponse> createUser(@RequestBody UserDto userDto) throws BadRequestException {
-       return authenticationUserService.createUser(userDto);
+    public ResponseEntity<JwtResponse> authUser(@RequestBody LoginRequest loginRequest) {
+        return authenticationUserService.authenticateUser(loginRequest);
     }
 }

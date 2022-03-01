@@ -3,7 +3,7 @@ package com.defiigosProject.SchoolCRMBackend.dto;
 import lombok.Data;
 
 @Data
-public class LoginDto {
+public class LoginRequest {
     private String email;
     private String password;
 }

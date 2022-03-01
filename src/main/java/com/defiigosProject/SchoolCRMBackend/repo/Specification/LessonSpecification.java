@@ -18,7 +18,7 @@ public class LessonSpecification {
     public static Specification<Lesson> withDate(String date){
         return (root, query, cb) -> {
             try {
-                return (date == null || date.toString().isEmpty()) ? null : cb.equal(root.get("date"), LocalDate.parse(date));
+                return (date == null || date.isEmpty()) ? null : cb.equal(root.get("date"), LocalDate.parse(date));
             } catch (Exception e) {
                 return null;
             }
@@ -28,7 +28,7 @@ public class LessonSpecification {
     public static Specification<Lesson> withTime(String time){
         return (root, query, cb) -> {
             try {
-                return (time == null || time.toString().isEmpty()) ? null : cb.equal(root.get("time"), LocalTime.parse(time));
+                return (time == null || time.isEmpty()) ? null : cb.equal(root.get("time"), LocalTime.parse(time));
             } catch (Exception e) {
                 return null;
             }

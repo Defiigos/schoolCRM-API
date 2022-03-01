@@ -21,8 +21,7 @@ public class LocationSpecification {
     }
 
     public static Specification<Location> withStatus(LocationStatusType status){
-        return (root, query, cb) -> {
-                return status == null ? null : cb.equal(root.join("status", JoinType.LEFT).get("status"), status);
-        };
+        return (root, query, cb) ->
+                status == null ? null : cb.equal(root.join("status", JoinType.LEFT).get("status"), status);
     }
 }
