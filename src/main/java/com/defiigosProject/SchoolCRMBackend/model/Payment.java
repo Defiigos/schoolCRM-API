@@ -36,4 +36,9 @@ public class Payment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Student student;
+
+    public Payment(LocalDate payDate, LocalTime payTime) {
+        this.payDate = payDate;
+        this.payTime = payTime;
+    }
 }

@@ -16,8 +16,12 @@ public class LessonGroupSpecification {
     }
 
     public static Specification<LessonGroup> withStatus(LessonGroupStatusType status){
-        return (root, query, cb) -> {
-            return status == null ? null : cb.equal(root.join("status", JoinType.LEFT).get("status"), status);
-        };
+        return (root, query, cb) ->
+                status == null ? null : cb.equal(root.join("status", JoinType.LEFT).get("status"), status);
+    }
+
+     public static Specification<LessonGroup> withStudentId(Long studentId){
+        return (root, query, cb) ->
+                studentId == null ? null : cb.equal(root.join("students", JoinType.LEFT).get("id"), studentId);
     }
 }

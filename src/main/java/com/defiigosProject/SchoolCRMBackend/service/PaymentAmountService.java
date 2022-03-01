@@ -49,13 +49,8 @@ public class PaymentAmountService {
 
         List<PaymentAmountDto> paymentAmountDtoList = new ArrayList<>();
         for (PaymentAmount paymentAmount: paymentAmountList){
-            paymentAmountDtoList.add(new PaymentAmountDto(
-                    paymentAmount.getId(),
-                    paymentAmount.getSum(),
-                    paymentAmount.getName()
-            ));
+            paymentAmountDtoList.add(PaymentAmountDto.build(paymentAmount));
         }
-
         return ResponseEntity.ok(paymentAmountDtoList);
     }
 

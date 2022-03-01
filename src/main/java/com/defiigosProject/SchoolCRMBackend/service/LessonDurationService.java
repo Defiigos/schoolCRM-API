@@ -50,11 +50,7 @@ public class LessonDurationService {
 
         List<LessonDurationDto> lessonDurationDtoList = new ArrayList<>();
         for (LessonDuration lessonDuration: lessonDurationList){
-            lessonDurationDtoList.add(new LessonDurationDto(
-               lessonDuration.getId(),
-               lessonDuration.getTime(),
-               lessonDuration.getName()
-            ));
+            lessonDurationDtoList.add(LessonDurationDto.build(lessonDuration));
         }
 
         return ResponseEntity.ok(lessonDurationDtoList);

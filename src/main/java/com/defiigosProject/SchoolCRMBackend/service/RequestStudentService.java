@@ -1,6 +1,5 @@
 package com.defiigosProject.SchoolCRMBackend.service;
 
-import com.defiigosProject.SchoolCRMBackend.dto.LocationDto;
 import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.dto.RequestStudentDto;
 import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
@@ -71,7 +70,7 @@ public class RequestStudentService {
         }
 
         requestStudentRepo.save(newRequestStudent);
-        return ResponseEntity.ok(new MessageResponse("RequestStudent successfully created"));
+        return ResponseEntity.ok(new MessageResponse("Request student successfully created"));
     }
 
     public ResponseEntity<List<RequestStudentDto>> getRequestStudent(
@@ -86,35 +85,9 @@ public class RequestStudentService {
         );
 
         List<RequestStudentDto> requestStudentDtoList = new ArrayList<>();
-        for (RequestStudent requestStudent:
-             requestStudentList) {
-            if (requestStudent.getLocation()!= null)
-                requestStudentDtoList.add(
-                        new RequestStudentDto(
-                                requestStudent.getId(),
-                                requestStudent.getName(),
-                                requestStudent.getPhone(),
-                                requestStudent.getStatus().getStatus(),
-                                new LocationDto(
-                                        requestStudent.getLocation().getId(),
-                                        requestStudent.getLocation().getAddress(),
-                                        requestStudent.getLocation().getName(),
-                                        requestStudent.getLocation().getStatus().getStatus()
-                                )
-                        )
-                );
-            else
-                requestStudentDtoList.add(
-                        new RequestStudentDto(
-                                requestStudent.getId(),
-                                requestStudent.getName(),
-                                requestStudent.getPhone(),
-                                requestStudent.getStatus().getStatus(),
-                                null
-                        )
-                );
+        for (RequestStudent requestStudent: requestStudentList) {
+                requestStudentDtoList.add(RequestStudentDto.build(requestStudent));
         }
-
         return ResponseEntity.ok(requestStudentDtoList);
     }
 

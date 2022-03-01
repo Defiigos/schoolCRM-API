@@ -62,12 +62,7 @@ public class LocationService {
 
         List<LocationDto> locationDtoList = new ArrayList<>();
         for (Location location: locationList) {
-            locationDtoList.add(new LocationDto(
-                    location.getId(),
-                    location.getAddress(),
-                    location.getName(),
-                    location.getStatus().getStatus()
-            ));
+            locationDtoList.add(LocationDto.build(location));
         }
 
         return ResponseEntity.ok(locationDtoList);

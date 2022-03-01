@@ -32,7 +32,8 @@ public class LessonGroupService {
     private final LessonGroupStatusRepo lessonGroupStatusRepo;
     private final StudentRepo studentRepo;
 
-    public LessonGroupService(LessonGroupRepo lessonGroupRepo, LessonGroupStatusRepo lessonGroupStatusRepo, StudentRepo studentRepo) {
+    public LessonGroupService(LessonGroupRepo lessonGroupRepo,
+                              LessonGroupStatusRepo lessonGroupStatusRepo, StudentRepo studentRepo) {
         this.lessonGroupRepo = lessonGroupRepo;
         this.lessonGroupStatusRepo = lessonGroupStatusRepo;
         this.studentRepo = studentRepo;
@@ -74,44 +75,23 @@ public class LessonGroupService {
         return ResponseEntity.ok(new MessageResponse("Lesson group successfully created"));
     }
 
-    public ResponseEntity<List<LessonGroupDto>> getLessonGroup(Long id, String name, LessonGroupStatusType status) {
+    public ResponseEntity<List<LessonGroupDto>> getLessonGroup(Long id, String name,
+                                                               LessonGroupStatusType status, Long studentId) {
 
         List<LessonGroup> lessonGroupList = lessonGroupRepo.findAll(
                 where(withId(id))
                         .and(withName(name))
                         .and(withStatus(status))
+                        .and(withStudentId(studentId))
         );
 
         List<LessonGroupDto> lessonGroupDtoList = new ArrayList<>();
         for (LessonGroup lessonGroup: lessonGroupList) {
-            if (lessonGroup.getStudents() != null){
-                Set<StudentDto> studentDtos = new HashSet<>();
-                for (Student student: lessonGroup.getStudents()) {
-                    studentDtos.add(new StudentDto(
-                         student.getId(),
-                         student.getName(),
-                         student.getPhone(),
-                         student.getParentName(),
-                         student.getParentPhone(),
-                         student.getDescription(),
-                         student.getStatus().getStatus()
-                    ));
-                }
-
-                lessonGroupDtoList.add(new LessonGroupDto(
-                        lessonGroup.getId(),
-                        lessonGroup.getName(),
-                        lessonGroup.getStatus().getStatus(),
-                        studentDtos
-                ));
-            } else {
-                lessonGroupDtoList.add(new LessonGroupDto(
-                        lessonGroup.getId(),
-                        lessonGroup.getName(),
-                        lessonGroup.getStatus().getStatus(),
-                        null
-                ));
+            Set<StudentDto> studentDtos = new HashSet<>();
+            for (Student student: lessonGroup.getStudents()) {
+                studentDtos.add(StudentDto.build(student));
             }
+            lessonGroupDtoList.add(LessonGroupDto.build(lessonGroup));
         }
         return ResponseEntity.ok(lessonGroupDtoList);
     }

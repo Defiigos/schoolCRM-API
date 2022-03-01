@@ -28,10 +28,10 @@ public class Lesson {
     private LocalTime time;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private User teacher;
+    private LessonStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private LessonStatus status;
+    private User teacher;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private LessonDuration duration;

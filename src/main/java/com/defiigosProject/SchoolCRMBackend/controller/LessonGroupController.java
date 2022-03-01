@@ -29,13 +29,14 @@ public class LessonGroupController {
     public ResponseEntity<List<LessonGroupDto>> getLessonGroup(
             @RequestParam(value = "id", required = false) Long id,
             @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "status", required = false) String status
-    ) throws BadEnumException {
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "studentId", required = false) Long studentId
+            ) throws BadEnumException {
         try {
             if (status != null)
-                return lessonGroupService.getLessonGroup(id, name, LessonGroupStatusType.valueOf(status));
+                return lessonGroupService.getLessonGroup(id, name, LessonGroupStatusType.valueOf(status), studentId);
             else
-                return lessonGroupService.getLessonGroup(id, name, null);
+                return lessonGroupService.getLessonGroup(id, name, null, studentId);
         } catch (IllegalArgumentException e) {
             throw new BadEnumException(LessonGroupStatusType.class, status);
         }

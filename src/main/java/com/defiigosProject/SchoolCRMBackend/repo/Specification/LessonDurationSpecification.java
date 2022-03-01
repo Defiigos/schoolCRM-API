@@ -12,7 +12,8 @@ public class LessonDurationSpecification {
     }
 
     public static Specification<LessonDuration> withTime(LocalTime time){
-        return (root, query, cb) -> (time == null || time.toString().isEmpty()) ? null : cb.equal(root.get("time"), time);
+        return (root, query, cb) ->
+                (time == null || time.toString().isEmpty()) ? null : cb.equal(root.get("time"), time);
     }
 
     public static Specification<LessonDuration> withName(String name){
