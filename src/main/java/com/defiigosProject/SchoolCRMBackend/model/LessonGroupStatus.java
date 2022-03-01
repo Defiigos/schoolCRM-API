@@ -1,14 +1,13 @@
 package com.defiigosProject.SchoolCRMBackend.model;
 
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonGroupStatusType;
-import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonStatusType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "lesson_group_statuses")
@@ -26,19 +25,19 @@ public class LessonGroupStatus {
     private LessonGroupStatusType status;
 
     @OneToMany(mappedBy = "status", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LessonGroup> lessonGroupList = new ArrayList<>();
+    private Set<LessonGroup> lessonGroups = new HashSet<>();
 
     public LessonGroupStatus(LessonGroupStatusType status) {
         this.status = status;
     }
 
     public void addLessonGroup(LessonGroup lessonGroup){
-        this.lessonGroupList.add(lessonGroup);
+        this.lessonGroups.add(lessonGroup);
         lessonGroup.setStatus(this);
     }
 
     public void removeLessonGroup(LessonGroup lessonGroup){
-        this.lessonGroupList.remove(lessonGroup);
+        this.lessonGroups.remove(lessonGroup);
         lessonGroup.setStatus(null);
     }
 }

@@ -8,7 +8,6 @@ import com.defiigosProject.SchoolCRMBackend.exception.FieldNotNullException;
 import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
 import com.defiigosProject.SchoolCRMBackend.model.Student;
 import com.defiigosProject.SchoolCRMBackend.model.StudentStatus;
-import com.defiigosProject.SchoolCRMBackend.model.enumerated.LocationStatusType;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.StudentStatusType;
 import com.defiigosProject.SchoolCRMBackend.repo.StudentRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.StudentStatusRepo;
@@ -141,7 +140,7 @@ public class StudentService {
         if (!deletedStudent.getLessonGroups().isEmpty())
             throw new EntityUsedException("student", "lesson group");
 
-        if (!deletedStudent.getPaymentList().isEmpty())
+        if (!deletedStudent.getPayments().isEmpty())
             throw new EntityUsedException("student", "payment");
 
         studentRepo.deleteById(id);

@@ -93,7 +93,7 @@ public class LessonDurationService {
         LessonDuration deletedLessonDuration = lessonDurationRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("lesson duration with this id:" + id));
 
-        if (!deletedLessonDuration.getLessonList().isEmpty())
+        if (!deletedLessonDuration.getLessons().isEmpty())
             throw new EntityUsedException("location", "lessons");
 
         lessonDurationRepo.deleteById(id);

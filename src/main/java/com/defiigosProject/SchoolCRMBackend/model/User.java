@@ -30,7 +30,7 @@ public class User {
     private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Lesson> lessonList = new ArrayList<>();
+    private Set<Lesson> lessons = new HashSet<>();
 
     public User(String username, String email, String password) {
         this.username = username;
@@ -39,12 +39,12 @@ public class User {
     }
 
     public void addLesson(Lesson lesson){
-        this.lessonList.add(lesson);
+        this.lessons.add(lesson);
         lesson.setTeacher(this);
     }
 
     public void removeLesson(Lesson lesson){
-        this.lessonList.remove(lesson);
+        this.lessons.remove(lesson);
         lesson.setTeacher(null);
     }
 

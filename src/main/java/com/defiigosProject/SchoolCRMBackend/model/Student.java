@@ -32,7 +32,7 @@ public class Student {
     private StudentStatus status;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Payment> paymentList = new ArrayList<>();
+    private Set<Payment> payments = new HashSet<>();
 
     @ManyToMany(mappedBy = "students")
     private Set<LessonGroup> lessonGroups = new HashSet<>();
@@ -48,12 +48,12 @@ public class Student {
     }
 
     public void addPayment(Payment payment){
-        this.paymentList.add(payment);
+        this.payments.add(payment);
         payment.setStudent(this);
     }
 
     public void removePayment(Payment payment){
-        this.paymentList.remove(payment);
+        this.payments.remove(payment);
         payment.setStudent(null);
     }
 
@@ -69,7 +69,7 @@ public class Student {
                 && parentPhone.equals(student.parentPhone)
                 && Objects.equals(description, student.description)
                 && Objects.equals(status, student.status)
-                && Objects.equals(paymentList, student.paymentList)
+                && Objects.equals(payments, student.payments)
                 && Objects.equals(lessonGroups, student.lessonGroups);
     }
 

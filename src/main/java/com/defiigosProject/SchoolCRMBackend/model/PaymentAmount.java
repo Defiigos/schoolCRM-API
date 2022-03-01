@@ -5,8 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "payment_amounts")
@@ -24,7 +24,7 @@ public class PaymentAmount {
     private String name;
 
     @OneToMany(mappedBy = "amount", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Payment> paymentList = new ArrayList<>();
+    private Set<Payment> payments = new HashSet<>();
 
     public PaymentAmount(Float sum, String name) {
         this.sum = sum;
@@ -32,12 +32,12 @@ public class PaymentAmount {
     }
 
     public void addPayment(Payment payment){
-        this.paymentList.add(payment);
+        this.payments.add(payment);
         payment.setAmount(this);
     }
 
     public void removePayment(Payment payment){
-        this.paymentList.remove(payment);
+        this.payments.remove(payment);
         payment.setAmount(null);
     }
 }

@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "payment_statuses")
@@ -25,19 +25,19 @@ public class PaymentStatus {
     private PaymentStatusType status;
 
     @OneToMany(mappedBy = "status", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Payment> paymentList = new ArrayList<>();
+    private Set<Payment> payments = new HashSet<>();
 
     public PaymentStatus(PaymentStatusType status) {
         this.status = status;
     }
 
     public void addPayment(Payment payment){
-        this.paymentList.add(payment);
+        this.payments.add(payment);
         payment.setStatus(this);
     }
 
     public void removePayment(Payment payment){
-        this.paymentList.remove(payment);
+        this.payments.remove(payment);
         payment.setStatus(null);
     }
 }

@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "request_student_statuses")
@@ -25,19 +25,19 @@ public class RequestStudentStatus {
     private RequestStudentStatusType status;
 
     @OneToMany(mappedBy = "status", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RequestStudent> requestStudentList = new ArrayList<>();
+    private Set<RequestStudent> requestStudents = new HashSet<>();
 
     public RequestStudentStatus(RequestStudentStatusType status) {
         this.status = status;
     }
 
     public void addRequestStudent(RequestStudent requestStudent){
-        this.requestStudentList.add(requestStudent);
+        this.requestStudents.add(requestStudent);
         requestStudent.setStatus(this);
     }
 
     public void removeRequestStudent(RequestStudent requestStudent){
-        this.requestStudentList.remove(requestStudent);
+        this.requestStudents.remove(requestStudent);
         requestStudent.setStatus(null);
     }
 }

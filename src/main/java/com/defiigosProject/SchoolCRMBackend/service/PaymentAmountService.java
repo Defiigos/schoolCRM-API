@@ -91,7 +91,7 @@ public class PaymentAmountService {
         PaymentAmount deletedPaymentAmount = paymentAmountRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("payment amount with this id:" + id));
 
-        if (!deletedPaymentAmount.getPaymentList().isEmpty())
+        if (!deletedPaymentAmount.getPayments().isEmpty())
             throw new EntityUsedException("payment amount", "payment");
 
         paymentAmountRepo.deleteById(id);

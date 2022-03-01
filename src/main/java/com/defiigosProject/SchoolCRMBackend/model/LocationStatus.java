@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "location_statuses")
@@ -25,19 +25,19 @@ public class LocationStatus {
     private LocationStatusType status;
 
     @OneToMany(mappedBy = "status", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Location> locationList = new ArrayList<>();
+    private Set<Location> locations = new HashSet<>();
 
     public LocationStatus(LocationStatusType status) {
         this.status = status;
     }
 
     public void addLocation(Location location) {
-        this.locationList.add(location);
+        this.locations.add(location);
         location.setStatus(this);
     }
 
     public void removeLocation(Location location) {
-        this.locationList.remove(location);
+        this.locations.remove(location);
         location.setStatus(null);
     }
 }

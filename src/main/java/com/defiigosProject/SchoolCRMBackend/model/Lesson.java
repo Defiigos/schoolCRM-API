@@ -7,8 +7,8 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "lessons")
@@ -43,7 +43,7 @@ public class Lesson {
     private LessonGroup lessonGroup;
 
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Payment> paymentList = new ArrayList<>();
+    private Set<Payment> payments = new HashSet<>();
 
     public Lesson(LocalDate date, LocalTime time) {
         this.date = date;
@@ -51,12 +51,12 @@ public class Lesson {
     }
 
     public void addPayment(Payment payment){
-        this.paymentList.add(payment);
+        this.payments.add(payment);
         payment.setLesson(this);
     }
 
     public void removePayment(Payment payment){
-        this.paymentList.remove(payment);
+        this.payments.remove(payment);
         payment.setLesson(null);
     }
 }

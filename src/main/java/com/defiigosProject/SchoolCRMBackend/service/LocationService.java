@@ -117,10 +117,10 @@ public class LocationService {
         Location deletedLocation = locationRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("location with this id:" + id));
 
-        if (!deletedLocation.getRequestStudentList().isEmpty())
+        if (!deletedLocation.getRequestStudents().isEmpty())
             throw new EntityUsedException("location", "request students");
 
-        if (!deletedLocation.getLessonList().isEmpty())
+        if (!deletedLocation.getLessons().isEmpty())
             throw new EntityUsedException("location", "lessons");
 
         locationRepo.deleteById(id);

@@ -6,8 +6,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "lesson_durations")
@@ -25,7 +25,7 @@ public class LessonDuration {
     private String name;
 
     @OneToMany(mappedBy = "duration", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Lesson> lessonList = new ArrayList<>();
+    private Set<Lesson> lessons = new HashSet<>();
 
     public LessonDuration(LocalTime time, String name) {
         this.time = time;
@@ -33,12 +33,12 @@ public class LessonDuration {
     }
 
     public void addLesson(Lesson lesson){
-        this.lessonList.add(lesson);
+        this.lessons.add(lesson);
         lesson.setDuration(this);
     }
 
     public void removeLesson(Lesson lesson){
-        this.lessonList.remove(lesson);
+        this.lessons.remove(lesson);
         lesson.setDuration(null);
     }
 }
