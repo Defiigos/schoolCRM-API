@@ -52,7 +52,8 @@ public class UserService {
         User user = new User(
                 userDto.getUsername(),
                 createUserEmail,
-                passwordEncoder.encode(createUserPassword)
+                passwordEncoder.encode(createUserPassword),
+                true
         );
 
         Set<RoleType> requestRoles = userDto.getRoles();

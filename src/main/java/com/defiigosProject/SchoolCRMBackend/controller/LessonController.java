@@ -33,13 +33,22 @@ public class LessonController {
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "teacherId", required = false) Long teacherId,
             @RequestParam(value = "durationId", required = false) Long durationId,
-            @RequestParam(value = "locationId", required = false) Long locationId
+            @RequestParam(value = "locationId", required = false) Long locationId,
+            @RequestParam(value = "dateFrom", required = false) String dateFrom,
+            @RequestParam(value = "dateTo", required = false) String dateTo,
+            @RequestParam(value = "timeFrom", required = false) String timeFrom,
+            @RequestParam(value = "timeTo", required = false) String timeTo
     ) throws BadEnumException {
         try {
             if (status != null)
-                return lessonService.getLesson(id, date, time, LessonStatusType.valueOf(status), teacherId, durationId, locationId);
+                return lessonService.getLesson(id, date, time, LessonStatusType.valueOf(status),
+                        teacherId, durationId, locationId,
+                        dateFrom, dateTo, timeFrom, timeTo);
             else
-                return lessonService.getLesson(id, date, time, null, teacherId, durationId, locationId);
+                return lessonService.getLesson(id, date, time, null,
+                        teacherId, durationId, locationId,
+                        dateFrom, dateTo, timeFrom, timeTo);
+
         } catch (IllegalArgumentException e) {
             throw new BadEnumException(LessonGroupStatusType.class, status);
         }

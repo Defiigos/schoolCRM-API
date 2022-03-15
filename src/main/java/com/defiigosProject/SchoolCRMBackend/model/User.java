@@ -20,8 +20,15 @@ public class User {
     private Long id;
 
     private String username;
+
+    @Column(nullable = false)
     private String email;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
+    private Boolean isActive;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "user_roles",
@@ -32,10 +39,11 @@ public class User {
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Lesson> lessons = new HashSet<>();
 
-    public User(String username, String email, String password) {
+    public User(String username, String email, String password, Boolean isActive) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.isActive = isActive;
     }
 
     public void addLesson(Lesson lesson){

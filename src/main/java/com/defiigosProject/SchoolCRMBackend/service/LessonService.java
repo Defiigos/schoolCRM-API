@@ -101,7 +101,8 @@ public class LessonService {
     }
 
     public ResponseEntity<List<LessonDto>> getLesson(Long id, String date, String time, LessonStatusType status,
-                                                     Long teacherId, Long durationId, Long locationId) {
+                                                     Long teacherId, Long durationId, Long locationId,
+                                                     String dateFrom, String dateTo, String timeFrom, String timeTo) {
 
         List<Lesson> lessonList = lessonRepo.findAll(
                 where(withId(id))
@@ -111,6 +112,10 @@ public class LessonService {
                         .and(withTeacherId(teacherId))
                         .and(withDurationId(durationId))
                         .and(withLocationId(locationId))
+                        .and(withDateFrom(dateFrom))
+                        .and(withDateTo(dateTo))
+                        .and(withTimeFrom(dateFrom))
+                        .and(withTimeTo(dateTo))
         );
 
         List<LessonDto> lessonDtoList = new ArrayList<>();

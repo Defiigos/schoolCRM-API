@@ -57,7 +57,8 @@ public class PaymentService {
     }
 
     public ResponseEntity<List<PaymentDto>> getPayment(Long id, Long lessonId, Long studentId, Long amountId,
-                                                       String date, String time, PaymentStatusType status) {
+                                                       String date, String time, PaymentStatusType status,
+                                                       String dateFrom, String dateTo, String timeFrom, String timeTo) {
 
         List<Payment> paymentList = paymentRepo.findAll(
                 where(withId(id))
@@ -67,6 +68,10 @@ public class PaymentService {
                         .and(withDate(date))
                         .and(withTime(time))
                         .and(withStatus(status))
+                        .and(withDateFrom(dateFrom))
+                        .and(withDateTo(dateTo))
+                        .and(withTimeFrom(dateFrom))
+                        .and(withTimeTo(dateTo))
         );
         List<PaymentDto> paymentDtoList = new ArrayList<>();
         for (Payment payment: paymentList)

@@ -34,14 +34,21 @@ public class PaymentController {
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "lessonId", required = false) Long lessonId,
             @RequestParam(value = "studentId", required = false) Long studentId,
-            @RequestParam(value = "amountId", required = false) Long amountId
+            @RequestParam(value = "amountId", required = false) Long amountId,
+            @RequestParam(value = "dateFrom", required = false) String dateFrom,
+            @RequestParam(value = "dateTo", required = false) String dateTo,
+            @RequestParam(value = "timeFrom", required = false) String timeFrom,
+            @RequestParam(value = "timeTo", required = false) String timeTo
     ) throws BadEnumException {
         try {
             if (status != null)
                 return paymentService.getPayment(id, lessonId, studentId, amountId,
-                        date, time, PaymentStatusType.valueOf(status));
+                        date, time, PaymentStatusType.valueOf(status),
+                        dateFrom, dateTo, timeFrom, timeTo);
             else
-                return paymentService.getPayment(id, lessonId, studentId, amountId, date, time, null);
+                return paymentService.getPayment(id, lessonId, studentId, amountId,
+                        date, time, null,
+                        dateFrom, dateTo, timeFrom, timeTo);
         } catch (IllegalArgumentException e) {
             throw new BadEnumException(LessonGroupStatusType.class, status);
         }
