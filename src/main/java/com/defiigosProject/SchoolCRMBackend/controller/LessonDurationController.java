@@ -1,14 +1,13 @@
 package com.defiigosProject.SchoolCRMBackend.controller;
 
-import com.defiigosProject.SchoolCRMBackend.dto.LessonDurationDto;
-import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
-import com.defiigosProject.SchoolCRMBackend.exception.*;
+import com.defiigosProject.SchoolCRMBackend.dto.lesson.LessonDurationDto;
+import com.defiigosProject.SchoolCRMBackend.dto.util.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.*;
 import com.defiigosProject.SchoolCRMBackend.service.LessonDurationService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @RestController
@@ -22,45 +21,38 @@ public class LessonDurationController {
         this.lessonDurationService = lessonDurationService;
     }
 
-//    TODO авторизация @PreAuthorize("hasRole('USER')")
     @GetMapping()
     public ResponseEntity<List<LessonDurationDto>> getLessonDuration(
             @RequestParam(value = "id", required = false) Long id,
             @RequestParam(value = "time", required = false) String time,
             @RequestParam(value = "name", required = false) String name
-    ) throws BadRequestException {
-        try {
-            if (time != null)
-                return lessonDurationService.getLessonDuration(id, LocalTime.parse(time), name);
-            else
-                return lessonDurationService.getLessonDuration(id, null, name);
-        }
-        catch (DateTimeParseException e) {
-            throw new BadRequestException("Time('time') format incorrect");
-        }
+    )
+            throws BadRequestException {
+        return lessonDurationService.getLessonDuration(id, time, name);
     }
 
-//    TODO авторизация @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/create")
+    @PostMapping()
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> createLessonDuration(
             @RequestBody LessonDurationDto lessonDurationDto)
             throws FieldRequiredException, EntityAlreadyExistException {
         return lessonDurationService.createLessonDuration(lessonDurationDto);
     }
 
-//    TODO авторизация @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> updateLessonDuration(
             @PathVariable(value = "id") Long id,
             @RequestBody LessonDurationDto lessonDurationDto
-    ) throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException {
+    )
+            throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException, EntityUsedException {
         return lessonDurationService.updateLessonDuration(id, lessonDurationDto);
     }
 
-//    TODO авторизация hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<MessageResponse> deleteLessonDuration(
-            @PathVariable(value = "id") Long id) throws EntityNotFoundException, EntityUsedException {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> deleteLessonDuration(@PathVariable(value = "id") Long id)
+            throws EntityNotFoundException, EntityUsedException {
         return lessonDurationService.deleteLessonDuration(id);
     }
 }

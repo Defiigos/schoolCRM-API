@@ -1,5 +1,6 @@
-package com.defiigosProject.SchoolCRMBackend.dto;
+package com.defiigosProject.SchoolCRMBackend.dto.lesson;
 
+import com.defiigosProject.SchoolCRMBackend.dto.StudentDto;
 import com.defiigosProject.SchoolCRMBackend.model.LessonGroup;
 import com.defiigosProject.SchoolCRMBackend.model.Student;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonGroupStatusType;

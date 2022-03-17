@@ -1,4 +1,4 @@
-package com.defiigosProject.SchoolCRMBackend.dto;
+package com.defiigosProject.SchoolCRMBackend.dto.lesson;
 
 import com.defiigosProject.SchoolCRMBackend.model.LessonDuration;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package com.defiigosProject.SchoolCRMBackend.exception;
+package com.defiigosProject.SchoolCRMBackend.exception.extend;
 
 public class FieldNotNullException extends Exception {
     public FieldNotNullException(String field) {

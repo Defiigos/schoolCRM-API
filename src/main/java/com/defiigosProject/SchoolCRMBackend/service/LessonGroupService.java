@@ -1,12 +1,10 @@
 package com.defiigosProject.SchoolCRMBackend.service;
 
-import com.defiigosProject.SchoolCRMBackend.dto.LessonGroupDto;
-import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.lesson.LessonGroupDto;
+import com.defiigosProject.SchoolCRMBackend.dto.util.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.dto.StudentDto;
-import com.defiigosProject.SchoolCRMBackend.exception.EntityAlreadyExistException;
-import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
-import com.defiigosProject.SchoolCRMBackend.exception.EntityUsedException;
-import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
+import com.defiigosProject.SchoolCRMBackend.dto.lesson.UpdateLessonGroupDto;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.*;
 import com.defiigosProject.SchoolCRMBackend.model.LessonGroup;
 import com.defiigosProject.SchoolCRMBackend.model.LessonGroupStatus;
 import com.defiigosProject.SchoolCRMBackend.model.Student;
@@ -14,13 +12,16 @@ import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonGroupStatusTy
 import com.defiigosProject.SchoolCRMBackend.repo.LessonGroupRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.LessonGroupStatusRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.StudentRepo;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonGroupStatusType.LESSON_GROUP_ACTIVE;
 import static com.defiigosProject.SchoolCRMBackend.repo.Specification.LessonGroupSpecification.*;
 import static org.springframework.data.jpa.domain.Specification.where;
 
@@ -49,9 +50,9 @@ public class LessonGroupService {
             throw new EntityAlreadyExistException("lesson group name");
         }
 
-        LessonGroupStatus newStatus = lessonGroupStatusRepo.findByStatus(LessonGroupStatusType.LESSON_GROUP_ACTIVE)
+        LessonGroupStatus newStatus = lessonGroupStatusRepo.findByStatus(LESSON_GROUP_ACTIVE)
                 .orElseThrow(() -> new RuntimeException("Error, Lesson group status "
-                        + LessonGroupStatusType.LESSON_GROUP_ACTIVE + " is not found"));
+                        + LESSON_GROUP_ACTIVE + " is not found"));
 
         LessonGroup newLessonGroup = new LessonGroup(lessonGroupDto.getName());
         newStatus.addLessonGroup(newLessonGroup);
@@ -74,14 +75,25 @@ public class LessonGroupService {
         return ResponseEntity.ok(new MessageResponse("Lesson group successfully created"));
     }
 
-    public ResponseEntity<List<LessonGroupDto>> getLessonGroup(Long id, String name,
-                                                               LessonGroupStatusType status, Long studentId) {
+    public ResponseEntity<List<LessonGroupDto>> getLessonGroup(Long id, String name, String status,
+                                                               Long lessonId, Long studentId)
+            throws BadEnumException {
+
+        LessonGroupStatusType paresStatus = null;
+        try {
+            if (status != null)
+                paresStatus = LessonGroupStatusType.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            throw new BadEnumException(LessonGroupStatusType.class, status);
+        }
 
         List<LessonGroup> lessonGroupList = lessonGroupRepo.findAll(
                 where(withId(id))
                         .and(withName(name))
-                        .and(withStatus(status))
-                        .and(withStudentId(studentId))
+                        .and(withStatus(paresStatus))
+                        .and(withLessonId(lessonId))
+                        .and(withStudentId(studentId)),
+                Sort.by(Sort.Direction.ASC, "id")
         );
 
         List<LessonGroupDto> lessonGroupDtoList = new ArrayList<>();
@@ -91,7 +103,7 @@ public class LessonGroupService {
         return ResponseEntity.ok(lessonGroupDtoList);
     }
 
-    public ResponseEntity<MessageResponse> updateLessonGroup(Long id, LessonGroupDto lessonGroupDto)
+    public ResponseEntity<MessageResponse> updateLessonGroup(Long id, UpdateLessonGroupDto lessonGroupDto)
             throws EntityNotFoundException, FieldRequiredException, EntityAlreadyExistException {
 
         LessonGroup updatedLessonGroup = lessonGroupRepo.findById(id)
@@ -122,51 +134,8 @@ public class LessonGroupService {
             newStatus.addLessonGroup(updatedLessonGroup);
         }
 
-        if (lessonGroupDto.getStudents() != null) {
-            for (Student student: updatedLessonGroup.getStudents()){
-                updatedLessonGroup.removeStudent(student);
-            }
-
-            Set<StudentDto> studentDtos = lessonGroupDto.getStudents();
-            for (StudentDto studentDto: studentDtos) {
-                if (studentDto.getId() == null || studentDto.getId().toString().isEmpty())
-                    throw new FieldRequiredException("student id");
-
-                Student student = studentRepo.findById(studentDto.getId())
-                        .orElseThrow(() -> new EntityNotFoundException("student"));
-
-                updatedLessonGroup.addStudent(student);
-            }
-        }
-
         lessonGroupRepo.save(updatedLessonGroup);
         return ResponseEntity.ok(new MessageResponse("Lesson group successfully updated"));
-    }
-
-    public ResponseEntity<MessageResponse> addStudent(Long id, Long studentDto) throws EntityNotFoundException {
-
-        LessonGroup updatedLessonGroup = lessonGroupRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("lesson group with this id:" + id));
-
-        Student addStudent = studentRepo.findById(studentDto).
-                orElseThrow(() -> new EntityNotFoundException("student with this id: " + studentDto));
-
-        updatedLessonGroup.addStudent(addStudent);
-        lessonGroupRepo.save(updatedLessonGroup);
-        return ResponseEntity.ok(new MessageResponse("Student successfully add"));
-    }
-
-    public ResponseEntity<MessageResponse> removeStudent(Long id, Long studentId) throws EntityNotFoundException {
-
-        LessonGroup updatedLessonGroup = lessonGroupRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("lesson group with this id:" + id));
-
-        Student removeStudent = studentRepo.findById(studentId).
-                orElseThrow(() -> new EntityNotFoundException("student with this id: " + studentId));
-
-        updatedLessonGroup.removeStudent(removeStudent);
-        lessonGroupRepo.save(updatedLessonGroup);
-        return ResponseEntity.ok(new MessageResponse("Student successfully remove"));
     }
 
     public ResponseEntity<MessageResponse> deleteLessonGroup(Long id)
@@ -178,8 +147,10 @@ public class LessonGroupService {
         if (!deletedLessonGroup.getLessons().isEmpty())
             throw new EntityUsedException("lesson group", "lessons");
 
-        if (!deletedLessonGroup.getStudents().isEmpty())
-            throw new EntityUsedException("lesson group", "students");
+        Set<Student> students = new HashSet<>(deletedLessonGroup.getStudents());
+        for (Student student: students) {
+            deletedLessonGroup.removeStudent(student);
+        }
 
         lessonGroupRepo.deleteById(id);
         return ResponseEntity.ok(new MessageResponse("Lesson group successfully deleted"));

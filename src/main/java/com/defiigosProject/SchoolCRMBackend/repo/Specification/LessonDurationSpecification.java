@@ -7,7 +7,7 @@ import java.time.LocalTime;
 
 public class LessonDurationSpecification {
 
-    public static Specification<LessonDuration> withId(Long id){
+    public static Specification<LessonDuration> withId(Long id) {
         return (root, query, cb) -> id == null ? null : cb.equal(root.get("id"), id);
     }
 
@@ -16,7 +16,7 @@ public class LessonDurationSpecification {
                 (time == null || time.toString().isEmpty()) ? null : cb.equal(root.get("time"), time);
     }
 
-    public static Specification<LessonDuration> withName(String name){
+    public static Specification<LessonDuration> withName(String name) {
         return (root, query, cb) -> (name == null || name.isEmpty()) ? null : cb.equal(root.get("name"), name);
     }
 }

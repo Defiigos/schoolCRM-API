@@ -1,22 +1,21 @@
 package com.defiigosProject.SchoolCRMBackend.service;
 
-import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.util.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.dto.StudentDto;
-import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
-import com.defiigosProject.SchoolCRMBackend.exception.EntityUsedException;
-import com.defiigosProject.SchoolCRMBackend.exception.FieldNotNullException;
-import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.*;
 import com.defiigosProject.SchoolCRMBackend.model.Student;
 import com.defiigosProject.SchoolCRMBackend.model.StudentStatus;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.StudentStatusType;
 import com.defiigosProject.SchoolCRMBackend.repo.StudentRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.StudentStatusRepo;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.defiigosProject.SchoolCRMBackend.model.enumerated.StudentStatusType.STUDENT_ACTIVE;
 import static com.defiigosProject.SchoolCRMBackend.repo.Specification.StudentSpecification.*;
 import static org.springframework.data.jpa.domain.Specification.where;
 
@@ -31,7 +30,8 @@ public class StudentService {
         this.studentStatusRepo = studentStatusRepo;
     }
 
-    public ResponseEntity<MessageResponse> createStudent(StudentDto studentDto) throws FieldRequiredException {
+    public ResponseEntity<MessageResponse> createStudent(StudentDto studentDto)
+            throws FieldRequiredException {
 
         if (studentDto.getParentName() == null || studentDto.getParentName().isEmpty()){
             throw new FieldRequiredException("parentName");
@@ -41,9 +41,9 @@ public class StudentService {
             throw new FieldRequiredException("parentPhone");
         }
 
-        StudentStatus activeStatus = studentStatusRepo.findByStatus(StudentStatusType.STUDENT_ACTIVE)
-                .orElseThrow(() -> new RuntimeException("Error, Location status "
-                        + StudentStatusType.STUDENT_ACTIVE + " is not found"));
+        StudentStatus activeStatus = studentStatusRepo.findByStatus(STUDENT_ACTIVE)
+                .orElseThrow(() -> new RuntimeException("Error, Student status "
+                        + STUDENT_ACTIVE + " is not found"));
 
         Student newStudent = new Student(
                 studentDto.getName(),
@@ -59,7 +59,16 @@ public class StudentService {
 
     public ResponseEntity<List<StudentDto>> getStudent(Long id, String name, String phone,
                                                        String parentName, String parentPhone,
-                                                       String description, StudentStatusType status) {
+                                                       String description, String status)
+            throws BadEnumException {
+
+        StudentStatusType parseStatus = null;
+        try {
+            if (status != null)
+                 parseStatus = StudentStatusType.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            throw new BadEnumException(StudentStatusType.class, status);
+        }
 
         List<Student> studentList = studentRepo.findAll(
                 where(withId(id))
@@ -68,7 +77,8 @@ public class StudentService {
                         .and(withParentName(parentName))
                         .and(withParentPhone(parentPhone))
                         .and(withDescription(description))
-                        .and(withStatus(status))
+                        .and(withStatus(parseStatus)),
+                Sort.by(Sort.Direction.ASC, "id")
         );
 
         List<StudentDto> studentDtoList = new ArrayList<>();
@@ -112,12 +122,12 @@ public class StudentService {
         if (studentDto.getStatus() != null) {
             StudentStatus oldStatus = studentStatusRepo
                     .findByStatus(updatedStudent.getStatus().getStatus())
-                    .orElseThrow(() -> new RuntimeException("Error, Old location status is not found"));
+                    .orElseThrow(() -> new RuntimeException("Error, Old student status is not found"));
             oldStatus.removeStudent(updatedStudent);
 
             StudentStatus newStatus = studentStatusRepo
                     .findByStatus(studentDto.getStatus())
-                    .orElseThrow(() -> new EntityNotFoundException("location status"));
+                    .orElseThrow(() -> new EntityNotFoundException("student status"));
             newStatus.addStudent(updatedStudent);
         }
 
@@ -125,7 +135,8 @@ public class StudentService {
         return ResponseEntity.ok(new MessageResponse("Student successfully updated"));
     }
 
-    public ResponseEntity<MessageResponse> deleteStudent(Long id) throws EntityNotFoundException, EntityUsedException {
+    public ResponseEntity<MessageResponse> deleteStudent(Long id)
+            throws EntityNotFoundException, EntityUsedException {
 
         Student deletedStudent = studentRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("student with this id:" + id));

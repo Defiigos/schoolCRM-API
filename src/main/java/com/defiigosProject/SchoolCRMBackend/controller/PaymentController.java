@@ -1,13 +1,12 @@
 package com.defiigosProject.SchoolCRMBackend.controller;
 
-import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
-import com.defiigosProject.SchoolCRMBackend.dto.PaymentDto;
-import com.defiigosProject.SchoolCRMBackend.dto.PaymentUpdateRequest;
-import com.defiigosProject.SchoolCRMBackend.exception.BadEnumException;
-import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
-import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
-import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonGroupStatusType;
-import com.defiigosProject.SchoolCRMBackend.model.enumerated.PaymentStatusType;
+import com.defiigosProject.SchoolCRMBackend.dto.util.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.payment.PaymentDto;
+import com.defiigosProject.SchoolCRMBackend.dto.payment.PaymentUpdateDto;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.BadEnumException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.BadRequestException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.EntityNotFoundException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.FieldRequiredException;
 import com.defiigosProject.SchoolCRMBackend.service.PaymentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +24,6 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-//    TODO авторизация ? только так ? -> @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping()
     public ResponseEntity<List<PaymentDto>> getPayment(
             @RequestParam(value = "id", required = false) Long id,
@@ -39,27 +37,18 @@ public class PaymentController {
             @RequestParam(value = "dateTo", required = false) String dateTo,
             @RequestParam(value = "timeFrom", required = false) String timeFrom,
             @RequestParam(value = "timeTo", required = false) String timeTo
-    ) throws BadEnumException {
-        try {
-            if (status != null)
-                return paymentService.getPayment(id, lessonId, studentId, amountId,
-                        date, time, PaymentStatusType.valueOf(status),
-                        dateFrom, dateTo, timeFrom, timeTo);
-            else
-                return paymentService.getPayment(id, lessonId, studentId, amountId,
-                        date, time, null,
-                        dateFrom, dateTo, timeFrom, timeTo);
-        } catch (IllegalArgumentException e) {
-            throw new BadEnumException(LessonGroupStatusType.class, status);
-        }
+    )
+            throws BadEnumException {
+        return paymentService.getPayment(id, lessonId, studentId, amountId,
+                date, time, status, dateFrom, dateTo, timeFrom, timeTo);
     }
 
-//    TODO авторизация @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<MessageResponse> updatePayment(
             @PathVariable(value = "id") Long id,
-            @RequestBody PaymentUpdateRequest request
-    ) throws EntityNotFoundException, FieldRequiredException {
+            @RequestBody PaymentUpdateDto request
+    )
+            throws EntityNotFoundException, FieldRequiredException, BadRequestException {
         return paymentService.updatePayment(id, request);
     }
 }

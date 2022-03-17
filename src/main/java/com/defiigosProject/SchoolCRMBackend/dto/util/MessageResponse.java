@@ -1,4 +1,4 @@
-package com.defiigosProject.SchoolCRMBackend.dto;
+package com.defiigosProject.SchoolCRMBackend.dto.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

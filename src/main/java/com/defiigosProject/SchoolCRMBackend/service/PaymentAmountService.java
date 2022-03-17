@@ -1,13 +1,14 @@
 package com.defiigosProject.SchoolCRMBackend.service;
 
-import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
-import com.defiigosProject.SchoolCRMBackend.dto.PaymentAmountDto;
-import com.defiigosProject.SchoolCRMBackend.exception.*;
+import com.defiigosProject.SchoolCRMBackend.dto.util.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.payment.PaymentAmountDto;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.*;
 import com.defiigosProject.SchoolCRMBackend.model.PaymentAmount;
 import com.defiigosProject.SchoolCRMBackend.repo.PaymentAmountRepo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,11 +40,21 @@ public class PaymentAmountService {
         return ResponseEntity.ok(new MessageResponse("Payment Amount successfully created"));
     }
 
-    public ResponseEntity<List<PaymentAmountDto>> getPaymentAmount(Long id, Float sum, String name){
+    public ResponseEntity<List<PaymentAmountDto>> getPaymentAmount(Long id, String sum, String name)
+            throws BadRequestException {
+
+        Float parseSum = null;
+        try {
+            if (sum != null)
+                parseSum = Float.parseFloat(sum);
+        }
+        catch (DateTimeParseException e) {
+            throw new BadRequestException("sum format incorrect");
+        }
 
         List<PaymentAmount> paymentAmountList = paymentAmountRepo.findAll(
                 where(withId(id))
-                        .and(withSum(sum))
+                        .and(withSum(parseSum))
                         .and(withName(name))
         );
 
@@ -59,7 +70,6 @@ public class PaymentAmountService {
 
         PaymentAmount updatedPaymentAmount = paymentAmountRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("payment amount with this id:" + id));
-
 
         if (paymentAmountDto.getSum() != null){
             if (paymentAmountDto.getSum().toString().isEmpty())
@@ -81,7 +91,8 @@ public class PaymentAmountService {
         return ResponseEntity.ok(new MessageResponse("Payment amount successfully updated"));
     }
 
-    public ResponseEntity<MessageResponse> deletePaymentAmount(Long id) throws EntityNotFoundException, EntityUsedException {
+    public ResponseEntity<MessageResponse> deletePaymentAmount(Long id)
+            throws EntityNotFoundException, EntityUsedException {
 
         PaymentAmount deletedPaymentAmount = paymentAmountRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("payment amount with this id:" + id));

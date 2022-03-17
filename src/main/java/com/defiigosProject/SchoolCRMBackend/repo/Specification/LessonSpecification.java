@@ -54,6 +54,12 @@ public class LessonSpecification {
                 locationId == null ? null : cb.equal(root.join("location", JoinType.LEFT).get("id"), locationId);
     }
 
+    public static Specification<Lesson> withLessonGroupId(Long lessonGroupId){
+        return (root, query, cb) ->
+                lessonGroupId == null ? null :
+                        cb.equal(root.join("lessonGroup", JoinType.LEFT).get("id"), lessonGroupId);
+    }
+
     public static Specification<Lesson> withDateFrom(String dateFrom) {
         return (root, query, cb) -> {
             try {

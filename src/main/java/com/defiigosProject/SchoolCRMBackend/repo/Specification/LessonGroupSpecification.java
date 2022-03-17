@@ -20,6 +20,11 @@ public class LessonGroupSpecification {
                 status == null ? null : cb.equal(root.join("status", JoinType.LEFT).get("status"), status);
     }
 
+     public static Specification<LessonGroup> withLessonId(Long lessonId){
+        return (root, query, cb) ->
+                lessonId == null ? null : cb.equal(root.join("lessons", JoinType.LEFT).get("id"), lessonId);
+    }
+
      public static Specification<LessonGroup> withStudentId(Long studentId){
         return (root, query, cb) ->
                 studentId == null ? null : cb.equal(root.join("students", JoinType.LEFT).get("id"), studentId);

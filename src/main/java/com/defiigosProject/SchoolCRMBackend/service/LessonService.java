@@ -1,22 +1,29 @@
 package com.defiigosProject.SchoolCRMBackend.service;
 
-import com.defiigosProject.SchoolCRMBackend.dto.LessonCreateRequest;
-import com.defiigosProject.SchoolCRMBackend.dto.LessonDto;
-import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
-import com.defiigosProject.SchoolCRMBackend.exception.BadRequestException;
-import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
-import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
+import com.defiigosProject.SchoolCRMBackend.dto.lesson.LessonCreateDto;
+import com.defiigosProject.SchoolCRMBackend.dto.lesson.LessonDto;
+import com.defiigosProject.SchoolCRMBackend.dto.util.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.BadEnumException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.BadRequestException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.EntityNotFoundException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.FieldRequiredException;
 import com.defiigosProject.SchoolCRMBackend.model.*;
+import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonGroupStatusType;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonStatusType;
-import com.defiigosProject.SchoolCRMBackend.model.enumerated.PaymentStatusType;
 import com.defiigosProject.SchoolCRMBackend.repo.*;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import static com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonStatusType.LESSON_CANCELED;
+import static com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonStatusType.LESSON_COMING;
+import static com.defiigosProject.SchoolCRMBackend.model.enumerated.PaymentStatusType.*;
 import static com.defiigosProject.SchoolCRMBackend.repo.Specification.LessonSpecification.*;
 import static org.springframework.data.jpa.domain.Specification.where;
 
@@ -32,11 +39,12 @@ public class LessonService {
     private final PaymentAmountRepo paymentAmountRepo;
     private final PaymentService paymentService;
     private final PaymentRepo paymentRepo;
+    private final PaymentStatusRepo paymentStatusRepo;
 
-    public LessonService(LessonRepo lessonRepo, LessonStatusRepo
-            lessonStatusRepo, UserRepo userRepo, LessonDurationRepo lessonDurationRepo,
-                         LocationRepo locationRepo, LessonGroupRepo lessonGroupRepo,
-                         PaymentAmountRepo paymentAmountRepo, PaymentService paymentService, PaymentRepo paymentRepo) {
+    public LessonService(LessonRepo lessonRepo, LessonStatusRepo lessonStatusRepo, UserRepo userRepo,
+                         LessonDurationRepo lessonDurationRepo, LocationRepo locationRepo,
+                         LessonGroupRepo lessonGroupRepo, PaymentAmountRepo paymentAmountRepo,
+                         PaymentService paymentService, PaymentRepo paymentRepo, PaymentStatusRepo paymentStatusRepo) {
         this.lessonRepo = lessonRepo;
         this.lessonStatusRepo = lessonStatusRepo;
         this.userRepo = userRepo;
@@ -46,10 +54,11 @@ public class LessonService {
         this.paymentAmountRepo = paymentAmountRepo;
         this.paymentService = paymentService;
         this.paymentRepo = paymentRepo;
+        this.paymentStatusRepo = paymentStatusRepo;
     }
 
-    public ResponseEntity<MessageResponse> createLesson(LessonCreateRequest request)
-            throws EntityNotFoundException, FieldRequiredException, IllegalAccessException {
+    public ResponseEntity<MessageResponse> createLesson(LessonCreateDto request)
+            throws EntityNotFoundException, FieldRequiredException, IllegalAccessException, BadRequestException {
 
         for (Field field: request.getClass().getDeclaredFields()){
             field.setAccessible(true);
@@ -63,14 +72,14 @@ public class LessonService {
             } catch (NoSuchFieldException e) { continue; }
         }
 
-        Lesson newLesson = new Lesson(
-                request.getDate(),
-                request.getTime()
-        );
+        LessonGroup lessonGroup  = lessonGroupRepo.findById(request.getLessonGroup().getId())
+                .orElseThrow(() -> new EntityNotFoundException("lesson group"));
 
-        LessonStatus newStatus = lessonStatusRepo.findByStatus(LessonStatusType.LESSON_COMING)
-                .orElseThrow(() -> new RuntimeException("Error, Lesson status "
-                        + LessonStatusType.LESSON_COMING + " is not found"));
+        if (lessonGroup.getStudents().isEmpty())
+            throw new BadRequestException("lesson must have at least one student");
+
+        LessonStatus newStatus = lessonStatusRepo.findByStatus(LESSON_COMING)
+                .orElseThrow(() -> new RuntimeException("Error, Lesson status " + LESSON_COMING + " is not found"));
 
         LessonDuration lessonDuration = lessonDurationRepo.findById(request.getLessonDuration().getId())
                 .orElseThrow(() -> new EntityNotFoundException("lesson duration"));
@@ -81,12 +90,13 @@ public class LessonService {
         User teacher = userRepo.findById(request.getTeacher().getId())
                 .orElseThrow(() -> new EntityNotFoundException("user"));
 
-        LessonGroup lessonGroup  = lessonGroupRepo.findById(request.getLessonGroup().getId())
-                .orElseThrow(() -> new EntityNotFoundException("lesson group"));
-
         PaymentAmount paymentAmount = paymentAmountRepo.findById(request.getPaymentAmount().getId())
                 .orElseThrow(() -> new EntityNotFoundException("payment amount"));
 
+        Lesson newLesson = new Lesson(
+                request.getDate(),
+                request.getTime()
+        );
         newStatus.addLesson(newLesson);
         lessonDuration.addLesson(newLesson);
         location.addLesson(newLesson);
@@ -95,27 +105,39 @@ public class LessonService {
 
         StringBuilder paymentAnswer = new StringBuilder(" \n ");
         for (Student student: lessonGroup.getStudents())
-            paymentAnswer.append(paymentService.createPayment(newLesson, student, paymentAmount)).append("\n ");
+            paymentAnswer.append(paymentService.createPayment(newLesson, student, paymentAmount)).append(" \n ");
 
         return ResponseEntity.ok(new MessageResponse("Lesson successfully created!" + paymentAnswer));
     }
 
-    public ResponseEntity<List<LessonDto>> getLesson(Long id, String date, String time, LessonStatusType status,
-                                                     Long teacherId, Long durationId, Long locationId,
-                                                     String dateFrom, String dateTo, String timeFrom, String timeTo) {
+    public ResponseEntity<List<LessonDto>> getLesson(Long id, String date, String time, String status,
+                                                     Long teacherId, Long durationId, Long locationId, Long lessonGroupId,
+                                                     String dateFrom, String dateTo, String timeFrom, String timeTo)
+            throws BadEnumException {
+
+        LessonStatusType parseStatus = null;
+        try {
+            if (status != null)
+                parseStatus = LessonStatusType.valueOf(status);
+
+        } catch (IllegalArgumentException e) {
+            throw new BadEnumException(LessonGroupStatusType.class, status);
+        }
 
         List<Lesson> lessonList = lessonRepo.findAll(
                 where(withId(id))
                         .and(withDate(date))
                         .and(withTime(time))
-                        .and(withStatus(status))
+                        .and(withStatus(parseStatus))
                         .and(withTeacherId(teacherId))
                         .and(withDurationId(durationId))
                         .and(withLocationId(locationId))
+                        .and(withLessonGroupId(lessonGroupId))
                         .and(withDateFrom(dateFrom))
                         .and(withDateTo(dateTo))
-                        .and(withTimeFrom(dateFrom))
-                        .and(withTimeTo(dateTo))
+                        .and(withTimeFrom(timeFrom))
+                        .and(withTimeTo(timeTo)),
+                Sort.by(Sort.Direction.ASC, "id")
         );
 
         List<LessonDto> lessonDtoList = new ArrayList<>();
@@ -163,6 +185,31 @@ public class LessonService {
             LessonStatus newStatus = lessonStatusRepo
                     .findByStatus(lessonDto.getStatus())
                     .orElseThrow(() -> new EntityNotFoundException("lesson status"));
+
+            PaymentStatus newPaymentStatus;
+            if (newStatus.getStatus().equals(LESSON_CANCELED)) {
+                newPaymentStatus = paymentStatusRepo.findByStatus(PAYMENT_CANCELED).
+                        orElseThrow(() -> new RuntimeException("Error, payment status "
+                                + PAYMENT_CANCELED + " is not found"));
+            } else
+                newPaymentStatus = paymentStatusRepo.findByStatus(PAYMENT_UNPAID).
+                        orElseThrow(() -> new RuntimeException("Error, payment status "
+                                + PAYMENT_UNPAID + " is not found"));
+
+                for (Student student: updatedLesson.getLessonGroup().getStudents()){
+                    Payment payment = paymentRepo.findByStudentIdAndLessonId(student.getId(), updatedLesson.getId())
+                            .orElseThrow(() -> new EntityNotFoundException("payment"));
+
+                    PaymentStatus oldPaymentStatus = paymentStatusRepo.findByStatus(payment.getStatus().getStatus()).
+                            orElseThrow(() -> new RuntimeException("Error, old payment status is not found"));
+
+                    if (oldPaymentStatus.getStatus().equals(PAYMENT_PAID))
+                        throw new BadRequestException("Could not update payment status, " +
+                                "student must not have paid lesson");
+
+                    oldPaymentStatus.removePayment(payment);
+                    newPaymentStatus.addPayment(payment);
+                }
 
             oldStatus.removeLesson(updatedLesson);
             newStatus.addLesson(updatedLesson);
@@ -213,18 +260,17 @@ public class LessonService {
                     .findById(lessonDto.getLessonGroupDto().getId())
                     .orElseThrow(() -> new EntityNotFoundException("lesson group"));
 
-//            НАДЕЮСЬ ЭТО БУДЕТ РАБОТАТЬ
             PaymentAmount paymentAmount = null;
             for (Student student: oldLessonGroup.getStudents()){
-                Payment studentPayment = paymentRepo.findByStudentIdAndLessonId(student.getId(), updatedLesson.getId())
-                        .orElseThrow(() -> new EntityNotFoundException("student payment"));
+                Payment payment = paymentRepo.findByStudentIdAndLessonId(student.getId(), updatedLesson.getId())
+                        .orElseThrow(() -> new EntityNotFoundException("payment"));
 
-                if (studentPayment.getStatus().getStatus().equals(PaymentStatusType.PAYMENT_PAID))
-                    throw new BadRequestException("Could not remove payment, student have paid lesson");
+                if (payment.getStatus().getStatus().equals(PAYMENT_PAID))
+                    throw new BadRequestException("Could not remove payment, student must not have paid lesson");
 
-                paymentAmount = studentPayment.getAmount();
+                paymentAmount = payment.getAmount();
 
-                student.removePayment(studentPayment);
+                student.removePayment(payment);
             }
 
             for (Student student : newLessonGroup.getStudents()) {
@@ -239,15 +285,24 @@ public class LessonService {
         return ResponseEntity.ok(new MessageResponse("Lesson successfully updated"));
     }
 
-//    public ResponseEntity<MessageResponse> deleteLesson(Long id) throws EntityNotFoundException, EntityUsedException {
-//
-//         Lesson deletedLesson = lessonRepo.findById(id)
-//                .orElseThrow(() -> new EntityNotFoundException("lesson with this id:" + id));
-//
-//        if (!deletedLesson.getPayments().isEmpty())
-//            throw new EntityUsedException("lesson", "payment");
-//
-//        lessonRepo.deleteById(id);
-//        return ResponseEntity.ok(new MessageResponse("Lesson successfully deleted"));
-//    }
+    public ResponseEntity<MessageResponse> deleteLesson(Long id)
+            throws EntityNotFoundException, BadRequestException {
+
+         Lesson deletedLesson = lessonRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("lesson with this id:" + id));
+
+         for (Payment payment: deletedLesson.getPayments()){
+             if (payment.getStatus().getStatus().equals(PAYMENT_PAID)){
+                 throw new BadRequestException("Could not remove lesson, lesson must not have paid payment!");
+             }
+         }
+
+        Set<Payment> payments = new HashSet<>(deletedLesson.getPayments());
+        for (Payment payment: payments) {
+            deletedLesson.removePayment(payment);
+        }
+
+        lessonRepo.deleteById(id);
+        return ResponseEntity.ok(new MessageResponse("Lesson successfully deleted"));
+    }
 }

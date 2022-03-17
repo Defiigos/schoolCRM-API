@@ -1,7 +1,7 @@
 package com.defiigosProject.SchoolCRMBackend.service;
 
-import com.defiigosProject.SchoolCRMBackend.dto.JwtResponse;
-import com.defiigosProject.SchoolCRMBackend.dto.LoginRequest;
+import com.defiigosProject.SchoolCRMBackend.dto.auth.JwtResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.auth.LoginRequest;
 import com.defiigosProject.SchoolCRMBackend.security.jwt.JwtUtils;
 import com.defiigosProject.SchoolCRMBackend.service.impl.UserDetailsImpl;
 import org.springframework.http.ResponseEntity;

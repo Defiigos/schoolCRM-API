@@ -1,12 +1,15 @@
-package com.defiigosProject.SchoolCRMBackend.dto;
+package com.defiigosProject.SchoolCRMBackend.dto.lesson;
 
+import com.defiigosProject.SchoolCRMBackend.dto.LocationDto;
+import com.defiigosProject.SchoolCRMBackend.dto.payment.PaymentAmountDto;
+import com.defiigosProject.SchoolCRMBackend.dto.TeacherDto;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
-public class LessonCreateRequest {
+public class LessonCreateDto {
     private LocalDate date;
     private LocalTime time;
     private LessonDurationDto lessonDuration;

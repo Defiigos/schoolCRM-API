@@ -1,5 +1,7 @@
-package com.defiigosProject.SchoolCRMBackend.dto;
+package com.defiigosProject.SchoolCRMBackend.dto.payment;
 
+import com.defiigosProject.SchoolCRMBackend.dto.StudentDto;
+import com.defiigosProject.SchoolCRMBackend.dto.lesson.LessonDto;
 import com.defiigosProject.SchoolCRMBackend.model.Payment;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.PaymentStatusType;
 import lombok.AllArgsConstructor;

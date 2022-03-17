@@ -1,14 +1,16 @@
 package com.defiigosProject.SchoolCRMBackend.controller;
 
 
-import com.defiigosProject.SchoolCRMBackend.dto.LessonCreateRequest;
-import com.defiigosProject.SchoolCRMBackend.dto.LessonDto;
-import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
-import com.defiigosProject.SchoolCRMBackend.exception.*;
-import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonGroupStatusType;
-import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonStatusType;
+import com.defiigosProject.SchoolCRMBackend.dto.lesson.LessonCreateDto;
+import com.defiigosProject.SchoolCRMBackend.dto.lesson.LessonDto;
+import com.defiigosProject.SchoolCRMBackend.dto.util.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.BadEnumException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.BadRequestException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.EntityNotFoundException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.FieldRequiredException;
 import com.defiigosProject.SchoolCRMBackend.service.LessonService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +26,6 @@ public class LessonController {
         this.lessonService = lessonService;
     }
 
-//    TODO авторизация ? только так ? -> @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping()
     public ResponseEntity<List<LessonDto>> getLesson(
             @RequestParam(value = "id", required = false) Long id,
@@ -34,39 +35,37 @@ public class LessonController {
             @RequestParam(value = "teacherId", required = false) Long teacherId,
             @RequestParam(value = "durationId", required = false) Long durationId,
             @RequestParam(value = "locationId", required = false) Long locationId,
+            @RequestParam(value = "lessonGroup", required = false) Long lessonGroupId,
             @RequestParam(value = "dateFrom", required = false) String dateFrom,
             @RequestParam(value = "dateTo", required = false) String dateTo,
             @RequestParam(value = "timeFrom", required = false) String timeFrom,
             @RequestParam(value = "timeTo", required = false) String timeTo
-    ) throws BadEnumException {
-        try {
-            if (status != null)
-                return lessonService.getLesson(id, date, time, LessonStatusType.valueOf(status),
-                        teacherId, durationId, locationId,
-                        dateFrom, dateTo, timeFrom, timeTo);
-            else
-                return lessonService.getLesson(id, date, time, null,
-                        teacherId, durationId, locationId,
-                        dateFrom, dateTo, timeFrom, timeTo);
-
-        } catch (IllegalArgumentException e) {
-            throw new BadEnumException(LessonGroupStatusType.class, status);
-        }
+    )
+            throws BadEnumException {
+        return lessonService.getLesson(id, date, time, status,
+                teacherId, durationId, locationId, lessonGroupId,
+                dateFrom, dateTo, timeFrom, timeTo);
     }
 
-//    TODO авторизация ? только так ? -> @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @PostMapping("/create")
-    public ResponseEntity<MessageResponse> createLesson(@RequestBody LessonCreateRequest request)
-            throws FieldRequiredException, EntityNotFoundException, IllegalAccessException {
+    @PostMapping()
+    public ResponseEntity<MessageResponse> createLesson(@RequestBody LessonCreateDto request)
+            throws FieldRequiredException, EntityNotFoundException, IllegalAccessException, BadRequestException {
         return lessonService.createLesson(request);
     }
 
-//    TODO авторизация ? только так ? -> @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<MessageResponse> updateLesson(
             @PathVariable(value = "id") Long id,
             @RequestBody LessonDto lessonDto
-    ) throws EntityNotFoundException, FieldRequiredException, BadRequestException {
+    )
+            throws EntityNotFoundException, FieldRequiredException, BadRequestException {
         return lessonService.updateLesson(id, lessonDto);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> deleteLesson(@PathVariable(value = "id") Long id)
+            throws EntityNotFoundException, BadRequestException {
+        return lessonService.deleteLesson(id);
     }
 }

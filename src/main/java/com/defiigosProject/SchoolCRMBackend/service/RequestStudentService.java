@@ -1,10 +1,11 @@
 package com.defiigosProject.SchoolCRMBackend.service;
 
-import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.util.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.dto.RequestStudentDto;
-import com.defiigosProject.SchoolCRMBackend.exception.EntityNotFoundException;
-import com.defiigosProject.SchoolCRMBackend.exception.FieldNotNullException;
-import com.defiigosProject.SchoolCRMBackend.exception.FieldRequiredException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.BadEnumException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.EntityNotFoundException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.FieldNotNullException;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.FieldRequiredException;
 import com.defiigosProject.SchoolCRMBackend.model.Location;
 import com.defiigosProject.SchoolCRMBackend.model.RequestStudent;
 import com.defiigosProject.SchoolCRMBackend.model.RequestStudentStatus;
@@ -13,13 +14,13 @@ import com.defiigosProject.SchoolCRMBackend.repo.LocationRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.RequestStudentRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.RequestStudentStatusRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.Specification.RequestStudentSpecification;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import static com.defiigosProject.SchoolCRMBackend.model.enumerated.RequestStudentStatusType.REQUEST_NEW;
 import static org.springframework.data.jpa.domain.Specification.where;
 
 @Service
@@ -37,7 +38,8 @@ public class RequestStudentService {
     }
 
     public ResponseEntity<MessageResponse> createRequestStudent(
-            RequestStudentDto requestStudentDto) throws FieldRequiredException, EntityNotFoundException {
+            RequestStudentDto requestStudentDto)
+            throws FieldRequiredException, EntityNotFoundException {
 
         if (requestStudentDto.getName() == null || requestStudentDto.getName().isEmpty()){
             throw new FieldRequiredException("name");
@@ -52,9 +54,9 @@ public class RequestStudentService {
                 requestStudentDto.getName(),
                 requestStudentDto.getPhone()
         );
-        RequestStudentStatus newStatus = requestStudentStatusRepo.findByStatus(RequestStudentStatusType.REQUEST_NEW)
+        RequestStudentStatus newStatus = requestStudentStatusRepo.findByStatus(REQUEST_NEW)
                 .orElseThrow(() -> new RuntimeException("Error, Request student status "
-                        + RequestStudentStatusType.REQUEST_NEW + " is not found"));
+                        + REQUEST_NEW + " is not found"));
         newStatus.addRequestStudent(newRequestStudent);
 
         if (requestStudentDto.getLocation() != null){
@@ -74,14 +76,24 @@ public class RequestStudentService {
     }
 
     public ResponseEntity<List<RequestStudentDto>> getRequestStudent(
-            Long id, String name, String phone, RequestStudentStatusType status, Long locationId){
+            Long id, String name, String phone, String status, Long locationId)
+            throws BadEnumException {
+
+        RequestStudentStatusType parseStatus = null;
+        try {
+            if (status != null)
+                parseStatus = RequestStudentStatusType.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            throw new BadEnumException(RequestStudentStatusType.class, status);
+        }
 
         List<RequestStudent> requestStudentList = requestStudentRepo.findAll(
                 where(RequestStudentSpecification.withId(id))
                         .and(RequestStudentSpecification.withName(name))
                         .and(RequestStudentSpecification.withPhone(phone))
-                        .and(RequestStudentSpecification.withStatus(status))
-                        .and(RequestStudentSpecification.withLocationId(locationId))
+                        .and(RequestStudentSpecification.withStatus(parseStatus))
+                        .and(RequestStudentSpecification.withLocationId(locationId)),
+                Sort.by(Sort.Direction.ASC, "id")
         );
 
         List<RequestStudentDto> requestStudentDtoList = new ArrayList<>();
@@ -97,7 +109,6 @@ public class RequestStudentService {
 
         RequestStudent findRequestStudent = requestStudentRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Request student with id:" + id));
-
 
         if (requestStudentDto.getName() != null ) {
             if (requestStudentDto.getName().isEmpty()) {
@@ -140,7 +151,8 @@ public class RequestStudentService {
         return ResponseEntity.ok(new MessageResponse("Request student successfully updated"));
     }
 
-    public ResponseEntity<MessageResponse> deleteRequestStudent(Long id) throws EntityNotFoundException {
+    public ResponseEntity<MessageResponse> deleteRequestStudent(Long id)
+            throws EntityNotFoundException {
 
         RequestStudent requestStudent = requestStudentRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Request student with id:"));

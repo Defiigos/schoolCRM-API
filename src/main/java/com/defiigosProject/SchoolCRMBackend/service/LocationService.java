@@ -1,19 +1,21 @@
 package com.defiigosProject.SchoolCRMBackend.service;
 
 import com.defiigosProject.SchoolCRMBackend.dto.LocationDto;
-import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
-import com.defiigosProject.SchoolCRMBackend.exception.*;
+import com.defiigosProject.SchoolCRMBackend.dto.util.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.*;
 import com.defiigosProject.SchoolCRMBackend.model.Location;
 import com.defiigosProject.SchoolCRMBackend.model.LocationStatus;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.LocationStatusType;
 import com.defiigosProject.SchoolCRMBackend.repo.LocationRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.LocationStatusRepo;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.defiigosProject.SchoolCRMBackend.model.enumerated.LocationStatusType.LOCATION_ACTIVE;
 import static com.defiigosProject.SchoolCRMBackend.repo.Specification.LocationSpecification.*;
 import static org.springframework.data.jpa.domain.Specification.where;
 
@@ -39,9 +41,9 @@ public class LocationService {
             throw new EntityAlreadyExistException("location");
         }
 
-        LocationStatus newStatus = locationStatusRepo.findByStatus(LocationStatusType.LOCATION_ACTIVE)
+        LocationStatus newStatus = locationStatusRepo.findByStatus(LOCATION_ACTIVE)
                 .orElseThrow(() -> new RuntimeException("Error, Location status "
-                        + LocationStatusType.LOCATION_ACTIVE + " is not found"));
+                        + LOCATION_ACTIVE + " is not found"));
 
         Location newLocation = new Location(locationDto.getAddress(), locationDto.getName());
         newStatus.addLocation(newLocation);
@@ -50,14 +52,23 @@ public class LocationService {
         return ResponseEntity.ok(new MessageResponse("Location successfully created"));
     }
 
-    public ResponseEntity<List<LocationDto>> getLocation(
-            Long id, String address, String name, LocationStatusType status){
+    public ResponseEntity<List<LocationDto>> getLocation(Long id, String address, String name, String status)
+            throws BadEnumException {
+
+        LocationStatusType paresStatus = null;
+        try {
+            if (status != null)
+                paresStatus = LocationStatusType.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            throw new BadEnumException(LocationStatusType.class, status);
+        }
 
         List<Location> locationList = locationRepo.findAll(
                 where(withId(id))
                         .and(withAddress(address))
                         .and(withName(name))
-                        .and(withStatus(status))
+                        .and(withStatus(paresStatus)),
+                Sort.by(Sort.Direction.ASC, "id")
         );
 
         List<LocationDto> locationDtoList = new ArrayList<>();
@@ -69,7 +80,7 @@ public class LocationService {
     }
 
     public ResponseEntity<MessageResponse> updateLocation(Long id, LocationDto locationDto)
-            throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException {
+            throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException, EntityUsedException {
 
         Location findLocation = locationRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("location with this id:" + id));
@@ -82,6 +93,14 @@ public class LocationService {
                 if (locationRepo.existsByAddress(locationDto.getAddress())) {
                     throw new EntityAlreadyExistException("location");
                 }
+
+                if (!findLocation.getRequestStudents().isEmpty())
+                    throw new EntityUsedException("location", "request students");
+
+                if (!findLocation.getLessons().isEmpty()) {
+                    throw new EntityUsedException("location", "lessons");
+                }
+
                 findLocation.setAddress(locationDto.getAddress());
             }
         }

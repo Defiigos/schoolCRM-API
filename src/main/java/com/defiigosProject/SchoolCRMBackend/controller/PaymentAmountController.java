@@ -1,14 +1,13 @@
 package com.defiigosProject.SchoolCRMBackend.controller;
 
-
-import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
-import com.defiigosProject.SchoolCRMBackend.dto.PaymentAmountDto;
-import com.defiigosProject.SchoolCRMBackend.exception.*;
+import com.defiigosProject.SchoolCRMBackend.dto.util.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.payment.PaymentAmountDto;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.*;
 import com.defiigosProject.SchoolCRMBackend.service.PaymentAmountService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @RestController
@@ -22,34 +21,24 @@ public class PaymentAmountController {
         this.paymentAmountService = paymentAmountService;
     }
 
-    //    TODO авторизация @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping()
     public ResponseEntity<List<PaymentAmountDto>> getPaymentAmount(
             @RequestParam(value = "id", required = false) Long id,
             @RequestParam(value = "sum", required = false) String sum,
             @RequestParam(value = "name", required = false) String name
     ) throws BadRequestException {
-        try {
-            if (sum != null)
-                return paymentAmountService.getPaymentAmount(id, Float.parseFloat(sum), name);
-            else
-                return paymentAmountService.getPaymentAmount(id, null, name);
-        }
-        catch (DateTimeParseException e) {
-            throw new BadRequestException("sum format incorrect");
-        }
+        return paymentAmountService.getPaymentAmount(id, sum, name);
     }
 
-    //    TODO авторизация @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/create")
-    public ResponseEntity<MessageResponse> createPaymentAmount(
-            @RequestBody PaymentAmountDto paymentAmountDto)
+    @PostMapping()
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> createPaymentAmount(@RequestBody PaymentAmountDto paymentAmountDto)
             throws FieldRequiredException, EntityAlreadyExistException {
         return paymentAmountService.createPaymentAmount(paymentAmountDto);
     }
 
-    //    TODO авторизация @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> updatePaymentAmount(
             @PathVariable(value = "id") Long id,
             @RequestBody PaymentAmountDto paymentAmountDto
@@ -57,10 +46,10 @@ public class PaymentAmountController {
         return paymentAmountService.updatePaymentAmount(id, paymentAmountDto);
     }
 
-    //    TODO авторизация hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<MessageResponse> deletePaymentAmount(
-            @PathVariable(value = "id") Long id) throws EntityNotFoundException, EntityUsedException {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> deletePaymentAmount(@PathVariable(value = "id") Long id)
+            throws EntityNotFoundException, EntityUsedException {
         return paymentAmountService.deletePaymentAmount(id);
     }
 }

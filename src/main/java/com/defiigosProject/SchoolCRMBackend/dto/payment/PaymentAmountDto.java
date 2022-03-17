@@ -1,4 +1,4 @@
-package com.defiigosProject.SchoolCRMBackend.dto;
+package com.defiigosProject.SchoolCRMBackend.dto.payment;
 
 import com.defiigosProject.SchoolCRMBackend.model.PaymentAmount;
 import lombok.AllArgsConstructor;

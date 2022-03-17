@@ -1,11 +1,11 @@
 package com.defiigosProject.SchoolCRMBackend.controller;
 
 import com.defiigosProject.SchoolCRMBackend.dto.LocationDto;
-import com.defiigosProject.SchoolCRMBackend.dto.MessageResponse;
-import com.defiigosProject.SchoolCRMBackend.exception.*;
-import com.defiigosProject.SchoolCRMBackend.model.enumerated.LocationStatusType;
+import com.defiigosProject.SchoolCRMBackend.dto.util.MessageResponse;
+import com.defiigosProject.SchoolCRMBackend.exception.extend.*;
 import com.defiigosProject.SchoolCRMBackend.service.LocationService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,38 +27,32 @@ public class LocationController {
             @RequestParam(value = "address", required = false) String address,
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "status", required = false) String status
-    ) throws BadEnumException {
-        try {
-            if (status != null)
-                return locationService.getLocation(id, address, name, LocationStatusType.valueOf(status));
-            else
-                return locationService.getLocation(id, address, name, null);
-        } catch (IllegalArgumentException e) {
-            throw new BadEnumException(LocationStatusType.class, status);
-        }
+    )
+            throws BadEnumException {
+        return locationService.getLocation(id, address, name, status);
     }
 
-//    TODO авторизация ? только так ? -> @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @PostMapping("/create")
+    @PostMapping()
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> createLocation(@RequestBody LocationDto locationDto)
             throws FieldRequiredException, EntityAlreadyExistException {
         return locationService.createLocation(locationDto);
     }
 
-//    TODO авторизация @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> updateLocation(
             @PathVariable(value = "id") Long id,
             @RequestBody LocationDto locationDto
-    ) throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException {
+    )
+            throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException, EntityUsedException {
         return locationService.updateLocation(id, locationDto);
     }
 
-//    TODO авторизация hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<MessageResponse> deleteLocation(
-            @PathVariable(value = "id") Long id
-    ) throws EntityNotFoundException, EntityUsedException {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> deleteLocation(@PathVariable(value = "id") Long id)
+            throws EntityNotFoundException, EntityUsedException {
         return locationService.deleteLocation(id);
     }
 }

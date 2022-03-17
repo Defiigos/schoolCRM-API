@@ -1,8 +1,9 @@
 package com.defiigosProject.SchoolCRMBackend.controller;
 
+
 import com.defiigosProject.SchoolCRMBackend.service.AuthenticateUserService;
-import com.defiigosProject.SchoolCRMBackend.dto.LoginRequest;
-import com.defiigosProject.SchoolCRMBackend.dto.JwtResponse;
+import com.defiigosProject.SchoolCRMBackend.dto.auth.LoginRequest;
+import com.defiigosProject.SchoolCRMBackend.dto.auth.JwtResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,7 @@ public class AuthenticateController {
         this.authenticationUserService = authenticationUserService;
     }
 
-    @PostMapping("/signIn")
+    @PostMapping("/login")
     public ResponseEntity<JwtResponse> authUser(@RequestBody LoginRequest loginRequest) {
         return authenticationUserService.authenticateUser(loginRequest);
     }

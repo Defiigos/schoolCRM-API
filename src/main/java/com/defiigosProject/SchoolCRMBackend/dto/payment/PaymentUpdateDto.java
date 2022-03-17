@@ -1,17 +1,12 @@
-package com.defiigosProject.SchoolCRMBackend.dto;
+package com.defiigosProject.SchoolCRMBackend.dto.payment;
 
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.PaymentStatusType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 @Data
 @AllArgsConstructor
-public class PaymentUpdateRequest {
-    private LocalDate payDate;
-    private LocalTime payTime;
+public class PaymentUpdateDto {
     private PaymentAmountDto amountDto;
     private PaymentStatusType status;
 }
