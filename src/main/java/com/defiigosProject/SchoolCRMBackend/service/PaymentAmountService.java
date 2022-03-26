@@ -5,9 +5,11 @@ import com.defiigosProject.SchoolCRMBackend.dto.payment.PaymentAmountDto;
 import com.defiigosProject.SchoolCRMBackend.exception.extend.*;
 import com.defiigosProject.SchoolCRMBackend.model.PaymentAmount;
 import com.defiigosProject.SchoolCRMBackend.repo.PaymentAmountRepo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +20,11 @@ import static org.springframework.data.jpa.domain.Specification.where;
 @Service
 public class PaymentAmountService {
 
+    private final String uri;
     private final PaymentAmountRepo paymentAmountRepo;
 
-    public PaymentAmountService(PaymentAmountRepo paymentAmountRepo) {
+    public PaymentAmountService(@Value("${URI}") String uri, PaymentAmountRepo paymentAmountRepo) {
+        this.uri = uri;
         this.paymentAmountRepo = paymentAmountRepo;
     }
 
@@ -37,7 +41,8 @@ public class PaymentAmountService {
 
         PaymentAmount newPaymentAmount = new PaymentAmount(paymentAmountDto.getSum(), paymentAmountDto.getName());
         paymentAmountRepo.save(newPaymentAmount);
-        return ResponseEntity.ok(new MessageResponse("Payment Amount successfully created"));
+        return ResponseEntity.created(URI.create(uri + "/api/payments/amounts"))
+                .body(new MessageResponse("Payment Amount successfully created"));
     }
 
     public ResponseEntity<List<PaymentAmountDto>> getPaymentAmount(Long id, String sum, String name)

@@ -14,10 +14,12 @@ import com.defiigosProject.SchoolCRMBackend.repo.LocationRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.RequestStudentRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.RequestStudentStatusRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.Specification.RequestStudentSpecification;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.*;
 
 import static com.defiigosProject.SchoolCRMBackend.model.enumerated.RequestStudentStatusType.REQUEST_NEW;
@@ -26,12 +28,14 @@ import static org.springframework.data.jpa.domain.Specification.where;
 @Service
 public class RequestStudentService {
 
+    private final String uri;
     private final RequestStudentStatusRepo requestStudentStatusRepo;
     private final RequestStudentRepo requestStudentRepo;
     private final LocationRepo locationRepo;
 
-    public RequestStudentService(RequestStudentStatusRepo requestStudentStatusRepo,
+    public RequestStudentService(@Value("${URI}") String uri, RequestStudentStatusRepo requestStudentStatusRepo,
                                  RequestStudentRepo requestStudentRepo, LocationRepo locationRepo) {
+        this.uri = uri;
         this.requestStudentStatusRepo = requestStudentStatusRepo;
         this.requestStudentRepo = requestStudentRepo;
         this.locationRepo = locationRepo;
@@ -72,7 +76,8 @@ public class RequestStudentService {
         }
 
         requestStudentRepo.save(newRequestStudent);
-        return ResponseEntity.ok(new MessageResponse("Request student successfully created"));
+        return ResponseEntity.created(URI.create(uri + "/api/requestStudents"))
+                .body(new MessageResponse("Request student successfully created"));
     }
 
     public ResponseEntity<List<RequestStudentDto>> getRequestStudent(

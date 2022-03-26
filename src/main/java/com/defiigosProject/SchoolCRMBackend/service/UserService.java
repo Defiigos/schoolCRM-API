@@ -8,11 +8,13 @@ import com.defiigosProject.SchoolCRMBackend.model.User;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.RoleType;
 import com.defiigosProject.SchoolCRMBackend.repo.RoleRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.UserRepo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,18 +28,20 @@ import static org.springframework.data.jpa.domain.Specification.where;
 @Service
 public class UserService {
 
+    private final String uri;
     private final UserRepo userRepo;
     private final RoleRepo roleRepo;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepo userRepo, RoleRepo roleRepo, PasswordEncoder passwordEncoder) {
+    public UserService(@Value("${URI}") String uri, UserRepo userRepo, RoleRepo roleRepo, PasswordEncoder passwordEncoder) {
+        this.uri = uri;
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.passwordEncoder = passwordEncoder;
     }
 
     public ResponseEntity<MessageResponse> createUser(CreateUserDto userDto)
-            throws BadRequestException, FieldRequiredException {
+            throws BadRequestException, FieldRequiredException, EntityAlreadyExistException {
 
         String createUserEmail = userDto.getEmail();
         String createUserPassword = userDto.getPassword();
@@ -51,7 +55,7 @@ public class UserService {
         }
 
         if (userRepo.existsByEmail(createUserEmail)){
-            throw new BadRequestException("Error: This email is already register");
+            throw new EntityAlreadyExistException("email");
         }
 
         User user = new User(
@@ -94,7 +98,8 @@ public class UserService {
             user.addRole(role);
         }
         userRepo.save(user);
-        return ResponseEntity.ok(new MessageResponse("User successfully created"));
+        return ResponseEntity.created(URI.create(uri + "/api/users"))
+                .body(new MessageResponse("User successfully created"));
     }
 
     public ResponseEntity<List<UserDto>> getUser(Long id, String name, String email, String role)

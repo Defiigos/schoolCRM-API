@@ -5,10 +5,12 @@ import com.defiigosProject.SchoolCRMBackend.dto.util.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.exception.extend.*;
 import com.defiigosProject.SchoolCRMBackend.model.LessonDuration;
 import com.defiigosProject.SchoolCRMBackend.repo.LessonDurationRepo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -20,9 +22,11 @@ import static org.springframework.data.jpa.domain.Specification.where;
 @Service
 public class LessonDurationService {
 
+    private final String uri;
     private final LessonDurationRepo lessonDurationRepo;
 
-    public LessonDurationService(LessonDurationRepo lessonDurationRepo) {
+    public LessonDurationService(@Value("${URI}") String uri, LessonDurationRepo lessonDurationRepo) {
+        this.uri = uri;
         this.lessonDurationRepo = lessonDurationRepo;
     }
 
@@ -39,7 +43,8 @@ public class LessonDurationService {
 
         LessonDuration newLessonDuration = new LessonDuration(lessonDurationDto.getTime(), lessonDurationDto.getName());
         lessonDurationRepo.save(newLessonDuration);
-        return ResponseEntity.ok(new MessageResponse("Lesson duration successfully created"));
+        return ResponseEntity.created(URI.create(uri + "/api/lessons/durations"))
+                .body(new MessageResponse("Lesson duration successfully created"));
     }
 
     public ResponseEntity<List<LessonDurationDto>> getLessonDuration(Long id, String time, String name)

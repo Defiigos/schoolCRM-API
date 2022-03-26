@@ -8,10 +8,12 @@ import com.defiigosProject.SchoolCRMBackend.model.StudentStatus;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.StudentStatusType;
 import com.defiigosProject.SchoolCRMBackend.repo.StudentRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.StudentStatusRepo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,10 +24,12 @@ import static org.springframework.data.jpa.domain.Specification.where;
 @Service
 public class StudentService {
 
+    private final String uri;
     private final StudentRepo studentRepo;
     private final StudentStatusRepo studentStatusRepo;
 
-    public StudentService(StudentRepo studentRepo, StudentStatusRepo studentStatusRepo) {
+    public StudentService(@Value("${URI}") String uri, StudentRepo studentRepo, StudentStatusRepo studentStatusRepo) {
+        this.uri = uri;
         this.studentRepo = studentRepo;
         this.studentStatusRepo = studentStatusRepo;
     }
@@ -54,7 +58,8 @@ public class StudentService {
         activeStatus.addStudent(newStudent);
 
         studentRepo.save(newStudent);
-        return ResponseEntity.ok(new MessageResponse("Student successfully created"));
+        return ResponseEntity.created(URI.create(uri + "/api/students"))
+                .body(new MessageResponse("Student successfully created"));
     }
 
     public ResponseEntity<List<StudentDto>> getStudent(Long id, String name, String phone,

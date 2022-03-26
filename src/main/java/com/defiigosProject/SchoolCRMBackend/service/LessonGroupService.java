@@ -12,10 +12,12 @@ import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonGroupStatusTy
 import com.defiigosProject.SchoolCRMBackend.repo.LessonGroupRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.LessonGroupStatusRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.StudentRepo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,12 +30,14 @@ import static org.springframework.data.jpa.domain.Specification.where;
 @Service
 public class LessonGroupService {
 
+    private final String uri;
     private final LessonGroupRepo lessonGroupRepo;
     private final LessonGroupStatusRepo lessonGroupStatusRepo;
     private final StudentRepo studentRepo;
 
-    public LessonGroupService(LessonGroupRepo lessonGroupRepo,
+    public LessonGroupService(@Value("${URI}") String uri, LessonGroupRepo lessonGroupRepo,
                               LessonGroupStatusRepo lessonGroupStatusRepo, StudentRepo studentRepo) {
+        this.uri = uri;
         this.lessonGroupRepo = lessonGroupRepo;
         this.lessonGroupStatusRepo = lessonGroupStatusRepo;
         this.studentRepo = studentRepo;
@@ -72,7 +76,8 @@ public class LessonGroupService {
         }
 
         lessonGroupRepo.save(newLessonGroup);
-        return ResponseEntity.ok(new MessageResponse("Lesson group successfully created"));
+        return ResponseEntity.created(URI.create(uri + "/api/lessons/groups"))
+                .body(new MessageResponse("Lesson group successfully created"));
     }
 
     public ResponseEntity<List<LessonGroupDto>> getLessonGroup(Long id, String name, String status,

@@ -1,7 +1,10 @@
 package com.defiigosProject.SchoolCRMBackend.exception.extend;
 
-public class BadRequestException extends Exception {
+import com.defiigosProject.SchoolCRMBackend.exception.HttpRequestException;
+import org.springframework.http.HttpStatus;
+
+public class BadRequestException extends HttpRequestException {
     public BadRequestException(String message) {
-        super(message);
+        super(message, HttpStatus.BAD_REQUEST);
     }
 }

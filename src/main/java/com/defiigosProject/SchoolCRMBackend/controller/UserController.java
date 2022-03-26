@@ -36,7 +36,7 @@ public class UserController {
     @PostMapping()
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> createUser(@RequestBody CreateUserDto userDto)
-            throws BadRequestException, FieldRequiredException {
+            throws BadRequestException, FieldRequiredException, EntityAlreadyExistException {
         return userService.createUser(userDto);
     }
 

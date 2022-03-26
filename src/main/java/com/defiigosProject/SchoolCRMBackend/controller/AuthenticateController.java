@@ -1,6 +1,7 @@
 package com.defiigosProject.SchoolCRMBackend.controller;
 
 
+import com.defiigosProject.SchoolCRMBackend.dto.util.MessageResponse;
 import com.defiigosProject.SchoolCRMBackend.service.AuthenticateUserService;
 import com.defiigosProject.SchoolCRMBackend.dto.auth.LoginRequest;
 import com.defiigosProject.SchoolCRMBackend.dto.auth.JwtResponse;
@@ -21,5 +22,10 @@ public class AuthenticateController {
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> authUser(@RequestBody LoginRequest loginRequest) {
         return authenticationUserService.authenticateUser(loginRequest);
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<MessageResponse> checkUser() {
+        return ResponseEntity.ok(new MessageResponse("User token is valid!"));
     }
 }

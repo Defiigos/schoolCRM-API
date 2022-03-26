@@ -18,9 +18,9 @@ public class DefaultAdvice {
             EntityAlreadyExistException.class,
             EntityUsedException.class
     })
-    public ResponseEntity<MessageResponse> handleException(Exception e){
+    public ResponseEntity<MessageResponse> handleException(HttpRequestException e){
         return ResponseEntity
-                .badRequest()
+                .status(e.getHttpStatus())
                 .body(new MessageResponse(e.getMessage()));
     }
 }

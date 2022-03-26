@@ -8,10 +8,12 @@ import com.defiigosProject.SchoolCRMBackend.model.LocationStatus;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.LocationStatusType;
 import com.defiigosProject.SchoolCRMBackend.repo.LocationRepo;
 import com.defiigosProject.SchoolCRMBackend.repo.LocationStatusRepo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,10 +24,12 @@ import static org.springframework.data.jpa.domain.Specification.where;
 @Service
 public class LocationService {
 
+    private final String uri;
     private final LocationRepo locationRepo;
     private final LocationStatusRepo locationStatusRepo;
 
-    public LocationService(LocationRepo locationRepo, LocationStatusRepo locationStatusRepo) {
+    public LocationService(@Value("${URI}") String uri, LocationRepo locationRepo, LocationStatusRepo locationStatusRepo) {
+        this.uri = uri;
         this.locationRepo = locationRepo;
         this.locationStatusRepo = locationStatusRepo;
     }
@@ -49,7 +53,8 @@ public class LocationService {
         newStatus.addLocation(newLocation);
 
         locationRepo.save(newLocation);
-        return ResponseEntity.ok(new MessageResponse("Location successfully created"));
+        return ResponseEntity.created(URI.create(uri + "/api/locations"))
+                .body(new MessageResponse("Location successfully created"));
     }
 
     public ResponseEntity<List<LocationDto>> getLocation(Long id, String address, String name, String status)

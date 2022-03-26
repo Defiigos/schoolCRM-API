@@ -11,11 +11,13 @@ import com.defiigosProject.SchoolCRMBackend.model.*;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonGroupStatusType;
 import com.defiigosProject.SchoolCRMBackend.model.enumerated.LessonStatusType;
 import com.defiigosProject.SchoolCRMBackend.repo.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +32,7 @@ import static org.springframework.data.jpa.domain.Specification.where;
 @Service
 public class LessonService {
 
+    private final String uri;
     private final LessonRepo lessonRepo;
     private final LessonStatusRepo lessonStatusRepo;
     private final UserRepo userRepo;
@@ -41,10 +44,11 @@ public class LessonService {
     private final PaymentRepo paymentRepo;
     private final PaymentStatusRepo paymentStatusRepo;
 
-    public LessonService(LessonRepo lessonRepo, LessonStatusRepo lessonStatusRepo, UserRepo userRepo,
+    public LessonService(@Value("${URI}") String uri, LessonRepo lessonRepo, LessonStatusRepo lessonStatusRepo, UserRepo userRepo,
                          LessonDurationRepo lessonDurationRepo, LocationRepo locationRepo,
                          LessonGroupRepo lessonGroupRepo, PaymentAmountRepo paymentAmountRepo,
                          PaymentService paymentService, PaymentRepo paymentRepo, PaymentStatusRepo paymentStatusRepo) {
+        this.uri = uri;
         this.lessonRepo = lessonRepo;
         this.lessonStatusRepo = lessonStatusRepo;
         this.userRepo = userRepo;
@@ -107,7 +111,8 @@ public class LessonService {
         for (Student student: lessonGroup.getStudents())
             paymentAnswer.append(paymentService.createPayment(newLesson, student, paymentAmount)).append(" \n ");
 
-        return ResponseEntity.ok(new MessageResponse("Lesson successfully created!" + paymentAnswer));
+        return ResponseEntity.created(URI.create(uri + "/api/lessons"))
+                .body(new MessageResponse("Lesson successfully created!" + paymentAnswer));
     }
 
     public ResponseEntity<List<LessonDto>> getLesson(Long id, String date, String time, String status,
