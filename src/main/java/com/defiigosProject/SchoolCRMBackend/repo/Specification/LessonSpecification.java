@@ -60,10 +60,31 @@ public class LessonSpecification {
                         cb.equal(root.join("lessonGroup", JoinType.LEFT).get("id"), lessonGroupId);
     }
 
+    public static Specification<Lesson> withTeacherName(String teacherName){
+        return (root, query, cb) ->
+                teacherName == null ? null : cb.equal(root.join("teacher", JoinType.LEFT).get("username"), teacherName);
+    }
+
+    public static Specification<Lesson> withDurationName(String durationName){
+        return (root, query, cb) ->
+                durationName == null ? null : cb.equal(root.join("duration", JoinType.LEFT).get("name"), durationName);
+    }
+
+    public static Specification<Lesson> withLocationName(String locationName){
+        return (root, query, cb) ->
+                locationName == null ? null : cb.equal(root.join("location", JoinType.LEFT).get("name"), locationName);
+    }
+
+    public static Specification<Lesson> withLessonGroupName(String lessonGroupName){
+        return (root, query, cb) ->
+                lessonGroupName == null ? null :
+                        cb.equal(root.join("lessonGroup", JoinType.LEFT).get("name"), lessonGroupName);
+    }
+
     public static Specification<Lesson> withDateFrom(String dateFrom) {
         return (root, query, cb) -> {
             try {
-                return dateFrom.isEmpty() ? null : cb.greaterThan(root.get("date"),  LocalDate.parse(dateFrom));
+                return dateFrom.isEmpty() ? null : cb.greaterThanOrEqualTo(root.get("date"),  LocalDate.parse(dateFrom));
             } catch (Exception e) {
                 return null;
             }

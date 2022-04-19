@@ -29,10 +29,11 @@ public class LessonGroupController {
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "lessonId", required = false) Long lessonId,
-            @RequestParam(value = "studentId", required = false) Long studentId
+            @RequestParam(value = "studentId", required = false) Long studentId,
+            @RequestParam(value = "studentName", required = false) String studentName
             )
             throws BadEnumException {
-        return lessonGroupService.getLessonGroup(id, name, status, lessonId, studentId);
+        return lessonGroupService.getLessonGroup(id, name, status, lessonId, studentId, studentName);
     }
 
     @PostMapping()
@@ -51,7 +52,7 @@ public class LessonGroupController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<MessageResponse> deleteLessonGroup(
             @PathVariable(value = "id") Long id
     )

@@ -36,6 +36,10 @@ public class LessonController {
             @RequestParam(value = "durationId", required = false) Long durationId,
             @RequestParam(value = "locationId", required = false) Long locationId,
             @RequestParam(value = "lessonGroup", required = false) Long lessonGroupId,
+            @RequestParam(value = "teacherName", required = false) String teacherName,
+            @RequestParam(value = "durationName", required = false) String durationName,
+            @RequestParam(value = "locationName", required = false) String locationName,
+            @RequestParam(value = "lessonGroupName", required = false) String lessonGroupName,
             @RequestParam(value = "dateFrom", required = false) String dateFrom,
             @RequestParam(value = "dateTo", required = false) String dateTo,
             @RequestParam(value = "timeFrom", required = false) String timeFrom,
@@ -43,7 +47,7 @@ public class LessonController {
     )
             throws BadEnumException {
         return lessonService.getLesson(id, date, time, status,
-                teacherId, durationId, locationId, lessonGroupId,
+                teacherId, durationId, locationId, lessonGroupId, teacherName, durationName, locationName, lessonGroupName,
                 dateFrom, dateTo, timeFrom, timeTo);
     }
 
@@ -63,7 +67,7 @@ public class LessonController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<MessageResponse> deleteLesson(@PathVariable(value = "id") Long id)
             throws EntityNotFoundException, BadRequestException {
         return lessonService.deleteLesson(id);

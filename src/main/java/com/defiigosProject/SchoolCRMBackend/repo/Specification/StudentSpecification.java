@@ -13,11 +13,11 @@ public class StudentSpecification {
     }
 
     public static Specification<Student> withName(String name){
-        return (root, query, cb) -> (name == null || name.isEmpty()) ? null : cb.equal(root.get("name"), name);
+        return (root, query, cb) -> (name == null || name.isEmpty()) ? null : cb.like(root.get("name"), name);
     }
 
     public static Specification<Student> withPhone(String phone){
-        return (root, query, cb) -> (phone == null || phone.isEmpty()) ? null : cb.equal(root.get("phone"), phone);
+        return (root, query, cb) -> (phone == null || phone.isEmpty()) ? null : cb.like(root.get("phone"), phone);
     }
 
     public static Specification<Student> withParentName(String parentName){

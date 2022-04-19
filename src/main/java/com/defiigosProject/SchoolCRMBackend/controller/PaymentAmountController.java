@@ -31,23 +31,23 @@ public class PaymentAmountController {
     }
 
     @PostMapping()
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<MessageResponse> createPaymentAmount(@RequestBody PaymentAmountDto paymentAmountDto)
             throws FieldRequiredException, EntityAlreadyExistException {
         return paymentAmountService.createPaymentAmount(paymentAmountDto);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<MessageResponse> updatePaymentAmount(
             @PathVariable(value = "id") Long id,
             @RequestBody PaymentAmountDto paymentAmountDto
-    ) throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException {
+    ) throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException, EntityUsedException {
         return paymentAmountService.updatePaymentAmount(id, paymentAmountDto);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<MessageResponse> deletePaymentAmount(@PathVariable(value = "id") Long id)
             throws EntityNotFoundException, EntityUsedException {
         return paymentAmountService.deletePaymentAmount(id);

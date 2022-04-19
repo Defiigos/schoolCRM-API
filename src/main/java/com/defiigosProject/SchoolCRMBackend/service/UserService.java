@@ -15,13 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import static com.defiigosProject.SchoolCRMBackend.model.enumerated.RoleType.ROLE_ADMIN;
-import static com.defiigosProject.SchoolCRMBackend.model.enumerated.RoleType.ROLE_USER;
+import static com.defiigosProject.SchoolCRMBackend.model.enumerated.RoleType.*;
 import static com.defiigosProject.SchoolCRMBackend.repo.Specification.UserSpecification.*;
 import static org.springframework.data.jpa.domain.Specification.where;
 
@@ -41,7 +37,7 @@ public class UserService {
     }
 
     public ResponseEntity<MessageResponse> createUser(CreateUserDto userDto)
-            throws BadRequestException, FieldRequiredException, EntityAlreadyExistException {
+            throws BadRequestException, FieldRequiredException, EntityAlreadyExistException, BadEnumException {
 
         String createUserEmail = userDto.getEmail();
         String createUserPassword = userDto.getPassword();
@@ -58,6 +54,21 @@ public class UserService {
             throw new EntityAlreadyExistException("email");
         }
 
+        Set<RoleType> paresRole = new HashSet<>();
+        try {
+            if (userDto.getRoles() == null)
+                throw new FieldRequiredException("roles");
+            else {
+                String[] rowRoles = userDto.getRoles().split(", ");
+                for (String role: rowRoles) {
+                    System.out.println(role);
+                    paresRole.add(RoleType.valueOf(role));
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            throw new BadEnumException(RoleType.class, userDto.getRoles());
+        }
+
         User user = new User(
                 userDto.getUsername(),
                 createUserEmail,
@@ -65,15 +76,14 @@ public class UserService {
                 true
         );
 
-        Set<RoleType> requestRoles = userDto.getRoles();
-        Set<Role> roles = new HashSet<>();
 
-        if (requestRoles == null) {
+        Set<Role> roles = new HashSet<>();
+        if (paresRole.isEmpty()) {
             Role userRole = roleRepo.findByName(ROLE_USER).
                     orElseThrow(() -> new RuntimeException("Error, Role " + ROLE_USER + " is not found"));
             roles.add(userRole);
         } else {
-            for (RoleType role: requestRoles)
+            for (RoleType role: paresRole)
             {
                 switch (role) {
                     case ROLE_ADMIN:
@@ -86,6 +96,12 @@ public class UserService {
                         Role userRole = roleRepo.findByName(ROLE_USER)
                                 .orElseThrow(() -> new RuntimeException("Error, Role " + ROLE_USER + " is not found"));
                         roles.add(userRole);
+                        break;
+
+                    case ROLE_SUPERADMIN:
+                        Role superRole = roleRepo.findByName(ROLE_SUPERADMIN)
+                                .orElseThrow(() -> new RuntimeException("Error, Role " + ROLE_SUPERADMIN + " is not found"));
+                        roles.add(superRole);
                         break;
 
                     default:
@@ -102,13 +118,14 @@ public class UserService {
                 .body(new MessageResponse("User successfully created"));
     }
 
-    public ResponseEntity<List<UserDto>> getUser(Long id, String name, String email, String role)
+    public ResponseEntity<List<UserDto>> getUser(Long id, String name, String email, String role, Boolean active)
             throws BadEnumException {
 
         RoleType paresRole = null;
         try {
-            if (role != null)
-                 paresRole = RoleType.valueOf(role);
+            if (role != null) {
+                    paresRole = RoleType.valueOf(role);
+            }
         } catch (IllegalArgumentException e) {
             throw new BadEnumException(RoleType.class, role);
         }
@@ -117,7 +134,8 @@ public class UserService {
                 where(withId(id))
                         .and(withName(name))
                         .and(withEmail(email))
-                        .and(withRole(paresRole)),
+                        .and(hasRole(paresRole))
+                        .and(withActive(active)),
                 Sort.by(Sort.Direction.ASC, "id")
         );
 
@@ -127,6 +145,48 @@ public class UserService {
         }
 
         return ResponseEntity.ok(userDtoList);
+    }
+
+    public ResponseEntity<MessageResponse> updateFullUser(Long id, UpdateFullUserDto userDto)
+            throws EntityNotFoundException {
+
+        User updatedUser = userRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("user with this id:" + id));
+
+        if (userDto.getUsername() != null && !userDto.getUsername().isEmpty()){
+            if (!userDto.getUsername().equals(updatedUser.getUsername())) {
+                updatedUser.setUsername(userDto.getUsername());
+            }
+        }
+
+        if (userDto.getActive() != null) {
+            if (updatedUser.getIsActive() != userDto.getActive())
+                updatedUser.setIsActive(userDto.getActive());
+        }
+
+        if (userDto.getRoles() != null) {
+            Set<Role> roles = new HashSet<>(updatedUser.getRoles());
+            for (Role role: roles) {
+                updatedUser.removeRole(role);
+            }
+
+            Role role = roleRepo.findByName(userDto.getRoles())
+                    .orElseThrow(() -> new EntityNotFoundException("role"));
+            updatedUser.addRole(role);
+        }
+
+        if (userDto.getEmail() != null) {
+            if (!updatedUser.getEmail().equals(userDto.getEmail())) {
+                if (!userRepo.existsByEmail(userDto.getEmail())) {
+                    updatedUser.setEmail(userDto.getEmail());
+                }
+            }
+        }
+
+
+
+        userRepo.save(updatedUser);
+        return ResponseEntity.ok(new MessageResponse("User successfully updated"));
     }
 
     public ResponseEntity<MessageResponse> updateUser(Long id, UpdateUserDto userDto)

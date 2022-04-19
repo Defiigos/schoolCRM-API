@@ -81,7 +81,7 @@ public class LessonGroupService {
     }
 
     public ResponseEntity<List<LessonGroupDto>> getLessonGroup(Long id, String name, String status,
-                                                               Long lessonId, Long studentId)
+                                                               Long lessonId, Long studentId, String studentName)
             throws BadEnumException {
 
         LessonGroupStatusType paresStatus = null;
@@ -97,7 +97,8 @@ public class LessonGroupService {
                         .and(withName(name))
                         .and(withStatus(paresStatus))
                         .and(withLessonId(lessonId))
-                        .and(withStudentId(studentId)),
+                        .and(withStudentId(studentId))
+                        .and(withStudentName(studentName)),
                 Sort.by(Sort.Direction.ASC, "id")
         );
 

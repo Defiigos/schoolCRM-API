@@ -32,7 +32,7 @@ public class LessonDurationController {
     }
 
     @PostMapping()
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<MessageResponse> createLessonDuration(
             @RequestBody LessonDurationDto lessonDurationDto)
             throws FieldRequiredException, EntityAlreadyExistException {
@@ -40,7 +40,7 @@ public class LessonDurationController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<MessageResponse> updateLessonDuration(
             @PathVariable(value = "id") Long id,
             @RequestBody LessonDurationDto lessonDurationDto
@@ -50,7 +50,7 @@ public class LessonDurationController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<MessageResponse> deleteLessonDuration(@PathVariable(value = "id") Long id)
             throws EntityNotFoundException, EntityUsedException {
         return lessonDurationService.deleteLessonDuration(id);

@@ -62,8 +62,8 @@ public class PaymentService {
         return "Payment for student with id: " + student.getId() + " successfully created!";
     }
 
-    public ResponseEntity<List<PaymentDto>> getPayment(Long id, Long lessonId, Long studentId, Long amountId,
-                                                       String date, String time, String status,
+    public ResponseEntity<List<PaymentDto>> getPayment(Long id, Long lessonId, Long studentId, Long teacherId, Long amountId,
+                                                       String date, String time, String status,  String studentName, String teacherName, String amountName,
                                                        String dateFrom, String dateTo, String timeFrom, String timeTo)
             throws BadEnumException {
 
@@ -79,7 +79,11 @@ public class PaymentService {
                 where(withId(id))
                         .and(withLessonId(lessonId))
                         .and(withStudentId(studentId))
+                        .and(withTeacherId(teacherId))
                         .and(withAmountId(amountId))
+                        .and(withStudentName(studentName))
+                        .and(withTeacherName(teacherName))
+                        .and(withAmountName(amountName))
                         .and(withDate(date))
                         .and(withTime(time))
                         .and(withStatus(paresStatus))
@@ -98,12 +102,12 @@ public class PaymentService {
     }
 
     public ResponseEntity<MessageResponse> updatePayment(Long id, PaymentUpdateDto updateDto)
-            throws FieldRequiredException, EntityNotFoundException, BadRequestException {
+            throws FieldRequiredException, EntityNotFoundException {
 
         Payment updatedPayment = paymentRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("payment with this id:" + id));
 
-        if (updateDto.getStatus() != null) {
+        if (updateDto.getStatus() != null && updateDto.getStatus() != updatedPayment.getStatus().getStatus()) {
             PaymentStatus oldStatus = paymentStatusRepo
                     .findByStatus(updatedPayment.getStatus().getStatus())
                     .orElseThrow(() -> new RuntimeException("Error, Old payment status is not found"));
@@ -112,21 +116,21 @@ public class PaymentService {
                     .findByStatus(updateDto.getStatus())
                     .orElseThrow(() -> new EntityNotFoundException("payment status"));
 
-            switch (updateDto.getStatus()) {
-                case PAYMENT_PAID:
-                case PAYMENT_CANCELED:
-                    if (!updatedPayment.getStatus().getStatus().equals(PAYMENT_UNPAID))
-                        throw new BadRequestException("payment must have " + PAYMENT_UNPAID + " status");
-                    break;
-                case PAYMENT_UNPAID:
-                    if (!updatedPayment.getStatus().getStatus().equals(PAYMENT_CANCELED))
-                        throw new BadRequestException("payment must have " + PAYMENT_CANCELED + " status");
-                    break;
-                case PAYMENT_REMOVED:
-                    if (!updatedPayment.getStatus().getStatus().equals(PAYMENT_PAID))
-                        throw new BadRequestException("payment must have " + PAYMENT_PAID + " status");
-                    break;
-            }
+//            switch (updateDto.getStatus()) {
+//                case PAYMENT_PAID:
+//                case PAYMENT_CANCELED:
+//                    if (!updatedPayment.getStatus().getStatus().equals(PAYMENT_UNPAID))
+//                        throw new BadRequestException("payment must have " + PAYMENT_UNPAID + " status");
+//                    break;
+//                case PAYMENT_UNPAID:
+//                    if (!updatedPayment.getStatus().getStatus().equals(PAYMENT_CANCELED))
+//                        throw new BadRequestException("payment must have " + PAYMENT_CANCELED + " status");
+//                    break;
+//                case PAYMENT_REMOVED:
+//                    if (!updatedPayment.getStatus().getStatus().equals(PAYMENT_PAID))
+//                        throw new BadRequestException("payment must have " + PAYMENT_PAID + " status");
+//                    break;
+//            }
 
             updatedPayment.setPayDate(LocalDate.now());
             updatedPayment.setPayTime(LocalTime.now());
@@ -134,7 +138,7 @@ public class PaymentService {
             newStatus.addPayment(updatedPayment);
         }
 
-        if (updateDto.getAmountDto() != null) {
+        if (updateDto.getAmountDto() != null && !updateDto.getAmountDto().getId().equals(updatedPayment.getAmount().getId())) {
             if (updateDto.getAmountDto().getId() == null ||updateDto.getAmountDto().getId().toString().isEmpty())
                 throw new FieldRequiredException("payment amount id");
 

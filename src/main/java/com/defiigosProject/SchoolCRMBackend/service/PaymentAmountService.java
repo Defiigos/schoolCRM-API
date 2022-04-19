@@ -71,12 +71,17 @@ public class PaymentAmountService {
     }
 
     public ResponseEntity<MessageResponse> updatePaymentAmount(Long id, PaymentAmountDto paymentAmountDto)
-            throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException {
+            throws EntityNotFoundException, FieldNotNullException, EntityAlreadyExistException, EntityUsedException {
 
         PaymentAmount updatedPaymentAmount = paymentAmountRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("payment amount with this id:" + id));
 
-        if (paymentAmountDto.getSum() != null){
+        if (paymentAmountDto.getSum() != null &&
+                (Float.compare(paymentAmountDto.getSum(), updatedPaymentAmount.getSum()) != 0)) {
+
+            if (!updatedPaymentAmount.getPayments().isEmpty())
+                throw new EntityUsedException("payment amount", "payment");
+
             if (paymentAmountDto.getSum().toString().isEmpty())
                 throw new FieldNotNullException("sum");
 

@@ -16,7 +16,7 @@ public class UserDto {
     private String username;
     private String email;
     private Set<RoleType> roles;
-    private Boolean isActive;
+    private Boolean active;
 
     public static UserDto build(User user) {
         Set<RoleType> roles = new HashSet<>();

@@ -81,7 +81,7 @@ public class RequestStudentService {
     }
 
     public ResponseEntity<List<RequestStudentDto>> getRequestStudent(
-            Long id, String name, String phone, String status, Long locationId)
+            Long id, String name, String phone, String status, String locationName, Long locationId)
             throws BadEnumException {
 
         RequestStudentStatusType parseStatus = null;
@@ -97,8 +97,9 @@ public class RequestStudentService {
                         .and(RequestStudentSpecification.withName(name))
                         .and(RequestStudentSpecification.withPhone(phone))
                         .and(RequestStudentSpecification.withStatus(parseStatus))
-                        .and(RequestStudentSpecification.withLocationId(locationId)),
-                Sort.by(Sort.Direction.ASC, "id")
+                        .and(RequestStudentSpecification.withLocationId(locationId))
+                        .and(RequestStudentSpecification.withLocationName(locationName)),
+                Sort.by(Sort.Direction.DESC, "id")
         );
 
         List<RequestStudentDto> requestStudentDtoList = new ArrayList<>();

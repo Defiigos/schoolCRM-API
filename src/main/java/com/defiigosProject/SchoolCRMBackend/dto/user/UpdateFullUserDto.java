@@ -6,10 +6,10 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class CreateUserDto {
+public class UpdateFullUserDto {
     private String username;
     private String email;
     private String password;
-//    private Set<RoleType> roles;
-    private String roles;
+    private RoleType roles;
+    private Boolean active;
 }

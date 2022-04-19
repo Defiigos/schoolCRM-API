@@ -33,14 +33,14 @@ public class LocationController {
     }
 
     @PostMapping()
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<MessageResponse> createLocation(@RequestBody LocationDto locationDto)
             throws FieldRequiredException, EntityAlreadyExistException {
         return locationService.createLocation(locationDto);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<MessageResponse> updateLocation(
             @PathVariable(value = "id") Long id,
             @RequestBody LocationDto locationDto
@@ -50,7 +50,7 @@ public class LocationController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<MessageResponse> deleteLocation(@PathVariable(value = "id") Long id)
             throws EntityNotFoundException, EntityUsedException {
         return locationService.deleteLocation(id);

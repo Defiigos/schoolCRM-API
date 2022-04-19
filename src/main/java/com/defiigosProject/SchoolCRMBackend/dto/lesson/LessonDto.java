@@ -17,10 +17,10 @@ public class LessonDto {
     private LocalDate date;
     private LocalTime time;
     private LessonStatusType status;
-    private LessonDurationDto durationDto;
-    private LocationDto locationDto;
-    private TeacherDto teacherDto;
-    private LessonGroupDto lessonGroupDto;
+    private LessonDurationDto duration;
+    private LocationDto location;
+    private TeacherDto teacher;
+    private LessonGroupDto lessonGroup;
 
     public static LessonDto build(Lesson lesson){
         return new LessonDto(

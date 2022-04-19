@@ -29,4 +29,9 @@ public class RequestStudentSpecification {
         return (root, query, cb) ->
                 locationId == null ? null : cb.equal(root.join("location", JoinType.LEFT).get("id"), locationId);
     }
+
+    public static Specification<RequestStudent> withLocationName(String locationName){
+        return (root, query, cb) ->
+                locationName == null ? null : cb.equal(root.join("location", JoinType.LEFT).get("name"), locationName);
+    }
 }

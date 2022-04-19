@@ -30,20 +30,21 @@ public class RequestStudentController {
     }
 
     @GetMapping()
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<?> getRequestStudent(
             @RequestParam(value = "id", required = false) Long id,
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "phone", required = false) String phone,
             @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "locationName", required = false) String locationName,
             @RequestParam(value = "locationId", required = false) Long locationId
     )
             throws BadEnumException {
-        return requestStudentService.getRequestStudent(id, name, phone, status, locationId);
+        return requestStudentService.getRequestStudent(id, name, phone, status, locationName, locationId);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<MessageResponse> updateRequestStudent(
             @PathVariable(value = "id") Long id,
             @RequestBody RequestStudentDto requestStudentDto
@@ -53,7 +54,7 @@ public class RequestStudentController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<MessageResponse> deleteRequestStudent(
             @PathVariable(value = "id") Long id)
             throws EntityNotFoundException {

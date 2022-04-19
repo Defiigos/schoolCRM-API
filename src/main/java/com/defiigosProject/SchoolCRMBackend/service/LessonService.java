@@ -116,7 +116,10 @@ public class LessonService {
     }
 
     public ResponseEntity<List<LessonDto>> getLesson(Long id, String date, String time, String status,
-                                                     Long teacherId, Long durationId, Long locationId, Long lessonGroupId,
+                                                     Long teacherId, Long durationId, Long locationId,
+                                                     Long lessonGroupId,
+                                                     String teacherName, String durationName, String locationName,
+                                                     String lessonGroupName,
                                                      String dateFrom, String dateTo, String timeFrom, String timeTo)
             throws BadEnumException {
 
@@ -138,6 +141,10 @@ public class LessonService {
                         .and(withDurationId(durationId))
                         .and(withLocationId(locationId))
                         .and(withLessonGroupId(lessonGroupId))
+                        .and(withTeacherName(teacherName))
+                        .and(withDurationName(durationName))
+                        .and(withLocationName(locationName))
+                        .and(withLessonGroupName(lessonGroupName))
                         .and(withDateFrom(dateFrom))
                         .and(withDateTo(dateTo))
                         .and(withTimeFrom(timeFrom))
@@ -158,31 +165,31 @@ public class LessonService {
         Lesson updatedLesson = lessonRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("lesson with this id:" + id));
 
-        if (lessonDto.getDate() != null){
+        if (lessonDto.getDate() != null && (lessonDto.getDate() != updatedLesson.getDate())){
             updatedLesson.setDate(lessonDto.getDate());
         }
 
-        if (lessonDto.getTime() != null){
+        if (lessonDto.getTime() != null && (lessonDto.getTime() != updatedLesson.getTime())){
             updatedLesson.setTime(lessonDto.getTime());
         }
 
-        if (lessonDto.getTeacherDto() != null) {
-            if (lessonDto.getTeacherDto().getId() == null || lessonDto.getTeacherDto().getId().toString().isEmpty())
+        if (lessonDto.getTeacher() != null) {
+            if (lessonDto.getTeacher().getId() == null || lessonDto.getTeacher().getId().toString().isEmpty())
                 throw new FieldRequiredException("teacher id");
 
             User oldUser = userRepo
-                    .findById(lessonDto.getTeacherDto().getId())
+                    .findById(lessonDto.getTeacher().getId())
                     .orElseThrow(() -> new RuntimeException("Error, Old teacher is not found"));
 
             User newUser = userRepo
-                    .findById(lessonDto.getTeacherDto().getId())
+                    .findById(lessonDto.getTeacher().getId())
                     .orElseThrow(() -> new EntityNotFoundException("teacher"));
 
             oldUser.removeLesson(updatedLesson);
             newUser.addLesson(updatedLesson);
         }
 
-        if (lessonDto.getStatus() != null) {
+        if (lessonDto.getStatus() != null && (lessonDto.getStatus() != updatedLesson.getStatus().getStatus())) {
             LessonStatus oldStatus = lessonStatusRepo
                     .findByStatus(updatedLesson.getStatus().getStatus())
                     .orElseThrow(() -> new RuntimeException("Error, Old lesson status is not found"));
@@ -220,71 +227,71 @@ public class LessonService {
             newStatus.addLesson(updatedLesson);
         }
 
-        if (lessonDto.getDurationDto() != null) {
-            if (lessonDto.getDurationDto().getId() == null || lessonDto.getDurationDto().getId().toString().isEmpty())
+        if (lessonDto.getDuration() != null) {
+            if (lessonDto.getDuration().getId() == null || lessonDto.getDuration().getId().toString().isEmpty())
                 throw new FieldRequiredException("lesson duration id");
 
             LessonDuration oldDuration = lessonDurationRepo
-                    .findById(lessonDto.getDurationDto().getId())
+                    .findById(lessonDto.getDuration().getId())
                     .orElseThrow(() -> new RuntimeException("Error, Old lesson duration is not found"));
 
             LessonDuration newDuration = lessonDurationRepo
-                    .findById(lessonDto.getDurationDto().getId())
+                    .findById(lessonDto.getDuration().getId())
                     .orElseThrow(() -> new EntityNotFoundException("lesson duration"));
 
             oldDuration.removeLesson(updatedLesson);
             newDuration.addLesson(updatedLesson);
         }
 
-        if (lessonDto.getLocationDto() != null) {
-            if (lessonDto.getLocationDto().getId() == null || lessonDto.getLocationDto().getId().toString().isEmpty())
+        if (lessonDto.getLocation() != null) {
+            if (lessonDto.getLocation().getId() == null || lessonDto.getLocation().getId().toString().isEmpty())
                 throw new FieldRequiredException("location id");
 
             Location oldLocation = locationRepo
-                    .findById(lessonDto.getLocationDto().getId())
+                    .findById(lessonDto.getLocation().getId())
                     .orElseThrow(() -> new RuntimeException("Error, Old lesson location is not found"));
 
             Location newLocation = locationRepo
-                    .findById(lessonDto.getLocationDto().getId())
+                    .findById(lessonDto.getLocation().getId())
                     .orElseThrow(() -> new EntityNotFoundException("location"));
 
             oldLocation.removeLesson(updatedLesson);
             newLocation.addLesson(updatedLesson);
         }
 
-        if (lessonDto.getLessonGroupDto() != null) {
-            if (lessonDto.getLessonGroupDto().getId() == null
-                    || lessonDto.getLessonGroupDto().getId().toString().isEmpty())
-                throw new FieldRequiredException("lesson group id");
-
-            LessonGroup oldLessonGroup = lessonGroupRepo
-                    .findById(lessonDto.getLessonGroupDto().getId())
-                    .orElseThrow(() -> new RuntimeException("Error, Old lesson group is not found"));
-
-            LessonGroup newLessonGroup = lessonGroupRepo
-                    .findById(lessonDto.getLessonGroupDto().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("lesson group"));
-
-            PaymentAmount paymentAmount = null;
-            for (Student student: oldLessonGroup.getStudents()){
-                Payment payment = paymentRepo.findByStudentIdAndLessonId(student.getId(), updatedLesson.getId())
-                        .orElseThrow(() -> new EntityNotFoundException("payment"));
-
-                if (payment.getStatus().getStatus().equals(PAYMENT_PAID))
-                    throw new BadRequestException("Could not remove payment, student must not have paid lesson");
-
-                paymentAmount = payment.getAmount();
-
-                student.removePayment(payment);
-            }
-
-            for (Student student : newLessonGroup.getStudents()) {
-                paymentService.createPayment(updatedLesson, student, paymentAmount);
-            }
-
-            oldLessonGroup.removeLesson(updatedLesson);
-            newLessonGroup.addLesson(updatedLesson);
-        }
+//        if (lessonDto.getLessonGroup() != null) {
+//            if (lessonDto.getLessonGroup().getId() == null
+//                    || lessonDto.getLessonGroup().getId().toString().isEmpty())
+//                throw new FieldRequiredException("lesson group id");
+//
+//            LessonGroup oldLessonGroup = lessonGroupRepo
+//                    .findById(lessonDto.getLessonGroup().getId())
+//                    .orElseThrow(() -> new RuntimeException("Error, Old lesson group is not found"));
+//
+//            LessonGroup newLessonGroup = lessonGroupRepo
+//                    .findById(lessonDto.getLessonGroup().getId())
+//                    .orElseThrow(() -> new EntityNotFoundException("lesson group"));
+//
+//            PaymentAmount paymentAmount = null;
+//            for (Student student: oldLessonGroup.getStudents()){
+//                Payment payment = paymentRepo.findByStudentIdAndLessonId(student.getId(), updatedLesson.getId())
+//                        .orElseThrow(() -> new EntityNotFoundException("payment"));
+//
+//                if (payment.getStatus().getStatus().equals(PAYMENT_PAID))
+//                    throw new BadRequestException("Could not remove payment, student must not have paid lesson");
+//
+//                paymentAmount = payment.getAmount();
+//
+//                student.removePayment(payment);
+//            }
+//
+//            for (Student student : newLessonGroup.getStudents()) {
+//                paymentService.createPayment(updatedLesson, student, paymentAmount);
+//            }
+//
+//            oldLessonGroup.removeLesson(updatedLesson);
+//            newLessonGroup.addLesson(updatedLesson);
+//        }
 
         lessonRepo.save(updatedLesson);
         return ResponseEntity.ok(new MessageResponse("Lesson successfully updated"));

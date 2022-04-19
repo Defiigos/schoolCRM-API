@@ -29,4 +29,9 @@ public class LessonGroupSpecification {
         return (root, query, cb) ->
                 studentId == null ? null : cb.equal(root.join("students", JoinType.LEFT).get("id"), studentId);
     }
+
+    public static Specification<LessonGroup> withStudentName(String studentName){
+        return (root, query, cb) ->
+                studentName == null ? null : cb.equal(root.join("students", JoinType.LEFT).get("name"), studentName);
+    }
 }

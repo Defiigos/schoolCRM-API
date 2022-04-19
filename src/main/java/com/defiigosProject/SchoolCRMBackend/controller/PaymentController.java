@@ -32,15 +32,19 @@ public class PaymentController {
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "lessonId", required = false) Long lessonId,
             @RequestParam(value = "studentId", required = false) Long studentId,
+            @RequestParam(value = "teacherId", required = false) Long teacherId,
             @RequestParam(value = "amountId", required = false) Long amountId,
+            @RequestParam(value = "studentName", required = false) String studentName,
+            @RequestParam(value = "teacherName", required = false) String teacherName,
+            @RequestParam(value = "amountName", required = false) String amountName,
             @RequestParam(value = "dateFrom", required = false) String dateFrom,
             @RequestParam(value = "dateTo", required = false) String dateTo,
             @RequestParam(value = "timeFrom", required = false) String timeFrom,
             @RequestParam(value = "timeTo", required = false) String timeTo
     )
             throws BadEnumException {
-        return paymentService.getPayment(id, lessonId, studentId, amountId,
-                date, time, status, dateFrom, dateTo, timeFrom, timeTo);
+        return paymentService.getPayment(id, lessonId, studentId, teacherId, amountId,
+                date, time, status, studentName, teacherName, amountName, dateFrom, dateTo, timeFrom, timeTo);
     }
 
     @PutMapping("/{id}")
@@ -48,7 +52,7 @@ public class PaymentController {
             @PathVariable(value = "id") Long id,
             @RequestBody PaymentUpdateDto request
     )
-            throws EntityNotFoundException, FieldRequiredException, BadRequestException {
+            throws EntityNotFoundException, FieldRequiredException {
         return paymentService.updatePayment(id, request);
     }
 }
