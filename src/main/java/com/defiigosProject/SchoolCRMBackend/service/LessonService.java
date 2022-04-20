@@ -44,7 +44,7 @@ public class LessonService {
     private final PaymentRepo paymentRepo;
     private final PaymentStatusRepo paymentStatusRepo;
 
-    public LessonService(@Value("${URI}") String uri, LessonRepo lessonRepo, LessonStatusRepo lessonStatusRepo, UserRepo userRepo,
+    public LessonService(@Value("${hostname}") String uri, LessonRepo lessonRepo, LessonStatusRepo lessonStatusRepo, UserRepo userRepo,
                          LessonDurationRepo lessonDurationRepo, LocationRepo locationRepo,
                          LessonGroupRepo lessonGroupRepo, PaymentAmountRepo paymentAmountRepo,
                          PaymentService paymentService, PaymentRepo paymentRepo, PaymentStatusRepo paymentStatusRepo) {

@@ -35,7 +35,7 @@ public class LessonGroupService {
     private final LessonGroupStatusRepo lessonGroupStatusRepo;
     private final StudentRepo studentRepo;
 
-    public LessonGroupService(@Value("${URI}") String uri, LessonGroupRepo lessonGroupRepo,
+    public LessonGroupService(@Value("${hostname}") String uri, LessonGroupRepo lessonGroupRepo,
                               LessonGroupStatusRepo lessonGroupStatusRepo, StudentRepo studentRepo) {
         this.uri = uri;
         this.lessonGroupRepo = lessonGroupRepo;

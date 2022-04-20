@@ -25,7 +25,7 @@ public class LessonDurationService {
     private final String uri;
     private final LessonDurationRepo lessonDurationRepo;
 
-    public LessonDurationService(@Value("${URI}") String uri, LessonDurationRepo lessonDurationRepo) {
+    public LessonDurationService(@Value("${hostname}") String uri, LessonDurationRepo lessonDurationRepo) {
         this.uri = uri;
         this.lessonDurationRepo = lessonDurationRepo;
     }

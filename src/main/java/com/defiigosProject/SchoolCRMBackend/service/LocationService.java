@@ -28,7 +28,7 @@ public class LocationService {
     private final LocationRepo locationRepo;
     private final LocationStatusRepo locationStatusRepo;
 
-    public LocationService(@Value("${URI}") String uri, LocationRepo locationRepo, LocationStatusRepo locationStatusRepo) {
+    public LocationService(@Value("${hostname}") String uri, LocationRepo locationRepo, LocationStatusRepo locationStatusRepo) {
         this.uri = uri;
         this.locationRepo = locationRepo;
         this.locationStatusRepo = locationStatusRepo;

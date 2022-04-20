@@ -28,7 +28,7 @@ public class StudentService {
     private final StudentRepo studentRepo;
     private final StudentStatusRepo studentStatusRepo;
 
-    public StudentService(@Value("${URI}") String uri, StudentRepo studentRepo, StudentStatusRepo studentStatusRepo) {
+    public StudentService(@Value("${hostname}") String uri, StudentRepo studentRepo, StudentStatusRepo studentStatusRepo) {
         this.uri = uri;
         this.studentRepo = studentRepo;
         this.studentStatusRepo = studentStatusRepo;

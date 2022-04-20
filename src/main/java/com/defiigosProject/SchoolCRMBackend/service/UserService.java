@@ -29,7 +29,7 @@ public class UserService {
     private final RoleRepo roleRepo;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(@Value("${URI}") String uri, UserRepo userRepo, RoleRepo roleRepo, PasswordEncoder passwordEncoder) {
+    public UserService(@Value("${hostname}") String uri, UserRepo userRepo, RoleRepo roleRepo, PasswordEncoder passwordEncoder) {
         this.uri = uri;
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;

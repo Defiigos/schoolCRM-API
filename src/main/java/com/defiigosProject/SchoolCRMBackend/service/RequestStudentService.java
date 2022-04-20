@@ -33,7 +33,7 @@ public class RequestStudentService {
     private final RequestStudentRepo requestStudentRepo;
     private final LocationRepo locationRepo;
 
-    public RequestStudentService(@Value("${URI}") String uri, RequestStudentStatusRepo requestStudentStatusRepo,
+    public RequestStudentService(@Value("${hostname}") String uri, RequestStudentStatusRepo requestStudentStatusRepo,
                                  RequestStudentRepo requestStudentRepo, LocationRepo locationRepo) {
         this.uri = uri;
         this.requestStudentStatusRepo = requestStudentStatusRepo;

@@ -23,7 +23,7 @@ public class PaymentAmountService {
     private final String uri;
     private final PaymentAmountRepo paymentAmountRepo;
 
-    public PaymentAmountService(@Value("${URI}") String uri, PaymentAmountRepo paymentAmountRepo) {
+    public PaymentAmountService(@Value("${hostname}") String uri, PaymentAmountRepo paymentAmountRepo) {
         this.uri = uri;
         this.paymentAmountRepo = paymentAmountRepo;
     }
